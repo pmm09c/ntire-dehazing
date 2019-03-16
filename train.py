@@ -29,28 +29,30 @@ learning_rate = opt['learning_rate']
 MODE = opt['mode'].upper()
 device = torch.device(opt['device'])
 if MODE == 'TRANS':
-    model_trans = LinkNet().to(device)
-    model_atmos = None
-    optimizer = torch.optim.Adam(model_trans.parameters(), lr=learning_rate)
+    model = LinkNet().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    try:
+        model.load_state_dict(torch.load(sys.argv[2]))
+    except Exception as e:
+        print("No weights. Training from scratch.")
 elif MODE == 'ATMOS':
-    model_trans = None
-    model_atmos = LinkNet().to(device)
-    optimizer = torch.optim.Adam(model_atmos.parameters(), lr=learning_rate)
+    model = LinkNet(pad=(0,0,8,0)).to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    try:
+        model.load_state_dict(torch.load(sys.argv[2]))
+    except Exception as e:
+        print("No weights. Training from scratch.")
 elif MODE == 'FULL':
-    # todo
-    print('not done')
+    model = FullNet().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    try:
+        model.trans.load_state_dict(torch.load(sys.argv[2]))
+        model.atmos.load_state_dict(torch.load(sys.argv[3]))
+    except Exception as e:
+        print("No weights. Training from scratch.")
 else:
     print('MODE INCORRECT : TRANS or ATMOS or FULL')
     exit()
-
-
-
-# Load Checkpoint
-try:
-    model.take.load_state_dict(torch.load(sys.argv[2]))
-except Exception as e:
-    print("No weights. Training from scratch.")
-
 
 # Loss 
 trans_loss = opt['loss_trans'].upper()
@@ -91,18 +93,16 @@ for epoch in range(num_epochs):
         tloss = 0
         aloss = 0
         if trans_loss :
-            output = model_trans(haze)
-            print(output.shape)
-            print(image_trans.shape)
+            output = model(haze)
             tloss = trans_loss(output,image_trans)
             loss_msg += ' Trans Loss : {:.4f}'.format(tloss.item())
-        if atmos_loss :
-            output = model_atmos(haze)
+        elif atmos_loss :
+            output = model(haze)
             aloss = atmos_loss(output,image_atmos)
             loss_msg += ' Atmos Loss : {:.4f}'.format(aloss.item())
-        if image_loss :
-            # compute dehazed image
-            iloss = image_loss()
+        elif image_loss :
+            output,trans,atmos = model(haze)
+            iloss = image_loss(output,image)
             loss_msg += ' Image Loss : {:.4f}'.format(iloss.item())
         loss = tloss + aloss + iloss
         optimizer.zero_grad()

@@ -1,0 +1,23 @@
+{
+    "mode": "atmos",
+    "root": "./dataset-mini",
+    "image_format": ".png",
+    "haze": "haze",
+    "trans": "clean",
+    "atmos": "atmos",
+    "image": "clean",
+    "trans_on": 0,
+    "atmos_on": 1,
+    "image_on": 0,
+    
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "num_epochs": 100,
+    
+    "weights_path": "./atmos",
+    "device":"cuda:1",
+
+    "loss_trans":"",
+    "loss_atmos":"MSE",
+    "loss_image":""
+}

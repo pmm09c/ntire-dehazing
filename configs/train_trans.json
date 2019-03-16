@@ -1,5 +1,5 @@
 {
-    "mode": "full",
+    "mode":"trans",
     "root": "./dataset-depth",
     "image_format": ".png",
     "haze": "images",
@@ -16,8 +16,7 @@
     "num_epochs": 100,
     
     "weights_path": "./trans",
-    "mode":"TRANS",
-    "device":"cuda",
+    "device":"cuda:0",
 
     "loss_trans":"MSE",
     "loss_atmos":"",

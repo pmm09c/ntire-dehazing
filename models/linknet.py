@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
+from torch.nn import functional as F
 from torch.autograd import Variable
 from torchvision.models import resnet
-
+from torchvision.transforms import CenterCrop
 
 class BasicBlock(nn.Module):
 
@@ -79,7 +80,7 @@ class LinkNet(nn.Module):
     Generate Model Architecture
     """
 
-    def __init__(self, n_classes=1):
+    def __init__(self, n_classes=1,pad=(0,0,0,0)):
         """
         Model initialization
         :param x_n: number of input neurons
@@ -95,7 +96,8 @@ class LinkNet(nn.Module):
             base.relu,
             base.maxpool
         )
-
+        self.pad = nn.ReflectionPad2d(pad)
+        self.pad_size = [int(x/2) for x in pad]
         self.encoder1 = base.layer1
         self.encoder2 = base.layer2
         self.encoder3 = base.layer3
@@ -119,6 +121,7 @@ class LinkNet(nn.Module):
 
     def forward(self, x):
         # Initial block
+        x = self.pad(x)
         x = self.in_block(x)
 
         # Encoder blocks
@@ -128,7 +131,6 @@ class LinkNet(nn.Module):
         e4 = self.encoder4(e3)
 
         # Decoder blocks
-        #d4 = e3 + self.decoder4(e4)
         d4 = e3 + self.decoder4(e4)
         d3 = e2 + self.decoder3(d4)
         d2 = e1 + self.decoder2(d3)
@@ -140,7 +142,10 @@ class LinkNet(nn.Module):
         y = self.tp_conv2(y)
 
         y = self.lsm(y) #relu
-
+        y = y[:,
+              :,
+              self.pad_size[2]:(y.shape[2]-self.pad_size[2]),
+              self.pad_size[3]:(y.shape[3]-self.pad_size[3])]
         return y
 
 class LinkNetBase(nn.Module):
@@ -186,7 +191,7 @@ class LinkNetBase(nn.Module):
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
-
+        
         # Encoder blocks
         e1 = self.encoder1(x)
         e2 = self.encoder2(e1)
@@ -206,5 +211,21 @@ class LinkNetBase(nn.Module):
         y = self.tp_conv2(y)
 
         y = self.lsm(y)
+        print(y.size)
 
+        print(y.size)
         return y
+
+class FullNet(nn.Module):
+    def __init__(self):
+        super(FullNet, self).__init__()
+        self.trans = LinkNet()
+        self.atmos = LinkNet()
+        
+    def forward(self,I):
+        t = self.trans(x)
+        A = self.atmos(x)
+        J = I-A
+        J = torch.div(J,t+1e-4)
+        J = J+A
+        return J,t,A
