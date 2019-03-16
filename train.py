@@ -7,7 +7,8 @@ import numpy as np
 
 # internal libraries
 from models.linknet import LinkNet
-from haze_dataset import HazeDataset
+#from haze_dataset import HazeDataset
+from hezhang_dataset import HeZhangDataset
 
 # Load config file 
 opt_file = open(sys.argv[1], "r")
@@ -36,7 +37,7 @@ if MODE == 'TRANS':
     except Exception as e:
         print("No weights. Training from scratch.")
 elif MODE == 'ATMOS':
-    model = LinkNet(pad=(0,0,8,0)).to(device)
+    model = LinkNet().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
         model.load_state_dict(torch.load(sys.argv[2]))
@@ -60,7 +61,7 @@ atmos_loss = opt['loss_atmos'].upper()
 image_loss = opt['loss_image'].upper()
 
 # Dataset
-train_dataset = HazeDataset(opt, transform=True)
+train_dataset = HeZhangDataset(opt)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                            batch_size=opt['batch_size'], 
                                            shuffle=True)

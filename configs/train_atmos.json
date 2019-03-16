@@ -1,20 +1,13 @@
 {
     "mode": "atmos",
-    "root": "./dataset-mini",
-    "image_format": ".png",
-    "haze": "haze",
-    "trans": "clean",
-    "atmos": "atmos",
-    "image": "clean",
-    "trans_on": 0,
-    "atmos_on": 1,
-    "image_on": 0,
+    "root": "./dataset-full",
+    "haze": "train512",
     
     "batch_size": 32,
     "learning_rate": 0.001,
     "num_epochs": 100,
     
-    "weights_path": "./atmos",
+    "weights_path": "./atmos-hezhang",
     "device":"cuda:1",
 
     "loss_trans":"",
