@@ -1,0 +1,25 @@
+{
+    "mode": "full",
+    "root": "./dataset-depth",
+    "image_format": ".png",
+    "haze": "images",
+    "trans": "depths",
+    "atmos": "depths",
+    "image": "depths",
+    "trans_on": 1,
+    "atmos_on": 0,
+    "image_on": 0,
+    
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "loss_index": 1,
+    "num_epochs": 100,
+    
+    "weights_path": "./trans",
+    "mode":"TRANS",
+    "device":"cuda",
+
+    "loss_trans":"MSE",
+    "loss_atmos":"",
+    "loss_image":""
+}
