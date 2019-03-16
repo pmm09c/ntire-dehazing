@@ -1,3 +1,6 @@
+# Linknet from e-lab https://github.com/e-lab/pytorch-linknet
+# Refinement layers from He,Zhang https://github.com/hezhangsprinter/DCPDN
+
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -221,6 +224,17 @@ class FullNet(nn.Module):
         super(FullNet, self).__init__()
         self.trans = LinkNet()
         self.atmos = LinkNet()
+        # Adapted from He Zhang https://github.com/hezhangsprinter/DCPDN
+        self.tanh=nn.Tanh()
+        self.refine1= nn.Conv2d(6, 20, kernel_size=3,stride=1,padding=1)
+        self.refine2= nn.Conv2d(20, 20, kernel_size=3,stride=1,padding=1)
+        self.threshold=nn.Threshold(0.1, 0.1)
+        self.conv1010 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
+        self.conv1020 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
+        self.conv1030 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
+        self.conv1040 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
+        self.refine3= nn.Conv2d(20+4, 3, kernel_size=3,stride=1,padding=1)
+        self.upsample = F.upsample_nearest
         
     def forward(self,I):
         t = self.trans(x)
@@ -228,4 +242,22 @@ class FullNet(nn.Module):
         J = I-A
         J = torch.div(J,t+1e-4)
         J = J+A
+        # Adapted from He Zhang https://github.com/hezhangsprinter/DCPDN
+        dehaze=torch.cat([J,I],1)
+        dehaze=self.relu((self.refine1(dehaze)))
+        dehaze=self.relu((self.refine2(dehaze)))
+        shape_out = dehaze.data.size()
+        shape_out = shape_out[2:4]
+        x101 = F.avg_pool2d(dehaze, 32)
+        x1010 = F.avg_pool2d(dehaze, 32)
+        x102 = F.avg_pool2d(dehaze, 16)
+        x1020 = F.avg_pool2d(dehaze, 16)
+        x103 = F.avg_pool2d(dehaze, 8)
+        x104 = F.avg_pool2d(dehaze, 4)
+        x1010 = self.upsample(self.relu(self.conv1010(x101)),size=shape_out)
+        x1020 = self.upsample(self.relu(self.conv1020(x102)),size=shape_out)
+        x1030 = self.upsample(self.relu(self.conv1030(x103)),size=shape_out)
+        x1040 = self.upsample(self.relu(self.conv1040(x104)),size=shape_out)
+        dehaze = torch.cat((x1010, x1020, x1030, x1040, dehaze), 1)
+        dehaze= self.tanh(self.refine3(dehaze))
         return J,t,A
