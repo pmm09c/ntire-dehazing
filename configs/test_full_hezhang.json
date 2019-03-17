@@ -1,0 +1,7 @@
+{
+    "mode": "full",
+    "root": "./dataset-full",
+    "haze": "val512",
+    "results_path": "./results",
+    "device":"cuda:1"
+}
