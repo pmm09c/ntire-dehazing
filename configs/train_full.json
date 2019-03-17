@@ -1,21 +1,15 @@
 {
     "mode": "full",
-    "root": "./dataset-mini",
-    "image_format": ".png",
-    "haze": "haze",
-    "trans": "depths",
-    "atmos": "depths",
-    "image": "clean",
-    "trans_on": 0,
-    "atmos_on": 0,
-    "image_on": 1,
+    "root": "./dataset-full",
+    "haze": "train512",
     
     "batch_size": 32,
     "learning_rate": 0.001,
+    "loss_index": 1,
     "num_epochs": 100,
     
-    "weights_path": "./full",
-    "device":"cuda",
+    "weights_path": "./full-hezhang",
+    "device":"cuda:0",
 
     "loss_trans":"",
     "loss_atmos":"",

@@ -83,7 +83,7 @@ class LinkNet(nn.Module):
     Generate Model Architecture
     """
 
-    def __init__(self, n_classes=1,pad=(0,0,0,0)):
+    def __init__(self, n_classes=3,pad=(0,0,0,0)):
         """
         Model initialization
         :param x_n: number of input neurons
@@ -214,9 +214,6 @@ class LinkNetBase(nn.Module):
         y = self.tp_conv2(y)
 
         y = self.lsm(y)
-        print(y.size)
-
-        print(y.size)
         return y
 
 class FullNet(nn.Module):
@@ -235,12 +232,15 @@ class FullNet(nn.Module):
         self.conv1040 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
         self.refine3= nn.Conv2d(20+4, 3, kernel_size=3,stride=1,padding=1)
         self.upsample = F.upsample_nearest
+        self.relu=nn.LeakyReLU(0.2, inplace=True)
         
     def forward(self,I):
-        t = self.trans(x)
-        A = self.atmos(x)
+        t = torch.clamp(self.trans(I),min=.05,max=1.0)
+        A = torch.clamp(self.atmos(I),min=.05,max=1.0)
+        #print(float(torch.min(A).cpu()),float(torch.max(A).cpu()),float(torch.mean(A).cpu()))
+        #print(float(torch.min(t).cpu()),float(torch.max(t).cpu()),float(torch.mean(t).cpu()))
         J = I-A
-        J = torch.div(J,t+1e-4)
+        J = torch.div(J,t)
         J = J+A
         # Adapted from He Zhang https://github.com/hezhangsprinter/DCPDN
         dehaze=torch.cat([J,I],1)
@@ -260,4 +260,4 @@ class FullNet(nn.Module):
         x1040 = self.upsample(self.relu(self.conv1040(x104)),size=shape_out)
         dehaze = torch.cat((x1010, x1020, x1030, x1040, dehaze), 1)
         dehaze= self.tanh(self.refine3(dehaze))
-        return J,t,A
+        return dehaze,t,A,J

@@ -6,7 +6,7 @@
     "batch_size": 32,
     "learning_rate": 0.001,
     "loss_index": 1,
-    "num_epochs": 100,
+    "num_epochs": 1000,
     
     "weights_path": "./trans-hezhang",
     "device":"cuda:0",

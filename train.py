@@ -6,7 +6,7 @@ import torch.nn as nn
 import numpy as np
 
 # internal libraries
-from models.linknet import LinkNet
+from models.linknet import LinkNet,FullNet
 #from haze_dataset import HazeDataset
 from hezhang_dataset import HeZhangDataset
 
@@ -50,7 +50,11 @@ elif MODE == 'FULL':
         model.trans.load_state_dict(torch.load(sys.argv[2]))
         model.atmos.load_state_dict(torch.load(sys.argv[3]))
     except Exception as e:
-        print("No weights. Training from scratch.")
+        try:
+            model.load_state_dict(torch.load(sys.argv[2]))
+        except Exception as e:
+            print("No weights. Training from scratch.")
+
 else:
     print('MODE INCORRECT : TRANS or ATMOS or FULL')
     exit()
@@ -102,7 +106,7 @@ for epoch in range(num_epochs):
             aloss = atmos_loss(output,image_atmos)
             loss_msg += ' Atmos Loss : {:.4f}'.format(aloss.item())
         elif image_loss :
-            output,trans,atmos = model(haze)
+            output,trans,atmos,dehaze = model(haze)
             iloss = image_loss(output,image)
             loss_msg += ' Image Loss : {:.4f}'.format(iloss.item())
         loss = tloss + aloss + iloss
