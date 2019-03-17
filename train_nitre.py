@@ -25,7 +25,7 @@ print(json.dumps(opt, indent=4, sort_keys=True))
 num_epochs = opt['num_epochs']
 learning_rate = opt['learning_rate']
 
-# Mode
+# Model
 device = torch.device(opt['device'])
 model = FullNet().to(device)
 model = nn.DataParallel(model)
@@ -70,9 +70,8 @@ for epoch in range(num_epochs):
         print ("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f} Avg Epoch Loss: {:.4f}".format(epoch+1, num_epochs, i+1, total_step, loss.item(),epoch_loss/(i+1))+loss_msg)
     if epoch_loss < best_loss:
         best_loss = epoch_loss
-        torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")
+        torch.save(model.state_dict(), opt['weights_path'] + "/NITRE_" + str(epoch) + ".ckpt")
         
-torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")          
 
 
             
