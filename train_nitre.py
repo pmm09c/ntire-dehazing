@@ -28,6 +28,7 @@ learning_rate = opt['learning_rate']
 # Mode
 device = torch.device(opt['device'])
 model = FullNet().to(device)
+model = nn.DataParallel(model)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 try:
     model.trans.load_state_dict(torch.load(sys.argv[2]))
