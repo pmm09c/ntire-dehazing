@@ -37,18 +37,21 @@ python test.py configs/test_atmos.py {airlight weights}
 ```
 ##### Training Transmission Model
 ```bash
+# Train
 python train.py configs/train_trans.py
 # Test
 python test.py configs/test_trans.py {trans weights}
 ``` 
 ##### Training Full Model on He Zhang Dataset
 ```bash
+# Train
 python train.py configs/train_full.py {trans weights} {airlight weights} 
 # Test
 python test.py configs/test_full.py {full weights}
 ``` 
 ##### Fine Tunning Full Model on NITRE Dataset
 ```bash
+# Train
 python train.py configs/train_nitre.py {full weights} 
 # Test
 python test.py configs/test_nitre.py {nitre weights}
