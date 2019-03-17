@@ -7,7 +7,6 @@ import numpy as np
 
 # internal libraries
 from models.linknet import LinkNet,FullNet
-#from haze_dataset import HazeDataset
 from hezhang_dataset import HeZhangDataset
 
 # Load config file 

@@ -7,7 +7,6 @@ import torchvision.transforms as transforms
 import torchvision.transforms.functional as TF
 import h5py
 
-
 class HeZhangDataset(data.Dataset):
     
     def __init__(self, opt):

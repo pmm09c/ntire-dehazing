@@ -1,0 +1,13 @@
+{
+    "mode": "full",
+    "root": "./dataset",
+    "haze": "haze",
+    "image": "clean",
+    "is_train":1,
+    "batch_size": 1,
+    "learning_rate": 0.001,
+    "num_epochs": 100,
+    
+    "weights_path": "./NITRE",
+    "device":"cuda:1"
+}

@@ -1,0 +1,7 @@
+{
+    "mode": "full",
+    "root": "./dataset",
+    "haze": "test",
+    "results_path": "./results_NITRE",
+    "device":"cuda:1"
+}
