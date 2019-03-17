@@ -22,6 +22,10 @@ if not os.path.isdir(opt['results_path']):
 
 print('Running with following config:')
 print(json.dumps(opt, indent=4, sort_keys=True))
+device = torch.device(opt['device'])
+model = FullNet().to(device)
+model = nn.DataParallel(model)
+model.load_state_dict(torch.load(sys.argv[2]))
 
 # Dataset
 train_dataset = NITREDataset(opt)
