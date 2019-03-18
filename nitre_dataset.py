@@ -69,7 +69,7 @@ class NITREDataset(data.Dataset):
             if self.augment:
                 input_image, label_image, label_trans, label_atmos = self.transform_data([input_image, label_image, label_trans, label_atmos])
             label_image = np.rollaxis(label_image, 2, 0).astype(np.float32)/255
-            label_trans = label_trans.astype(np.float32)
-            label_atmos = label_atmos.astype(np.float32)
+            label_trans = np.rollaxis(label_trans, 2, 0).astype(np.float32)/255
+            label_atmos = np.rollaxis(label_atmos, 2, 0).astype(np.float32)/255
         input_image = np.rollaxis(input_image, 2, 0).astype(np.float32)/255
         return input_image, label_image, label_trans, label_atmos
