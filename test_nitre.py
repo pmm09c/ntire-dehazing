@@ -8,7 +8,7 @@ from PIL import Image
 from time import time
 
 # internal libraries
-from models.linknet import LinkNet,FullNet
+from models.models import LinkNet,FullNet
 from nitre_dataset import NITREDataset
 
 # Load config file 
@@ -42,10 +42,17 @@ for i, (haze,_) in enumerate(train_loader):
     t = time() - t
     print ("Process Time {:.4f} Step [{}/{}]".format(t, i+1, total_step))
     output = np.clip(np.rollaxis(output.cpu().detach().numpy(),1,4)*255,0,255)
-    print(output.shape)
+    trans = np.clip(np.rollaxis(trans.cpu().detach().numpy(),1,4)*255,0,255)
+    atmos = np.clip(np.rollaxis(atmos.cpu().detach().numpy(),1,4)*255,0,255)
+    dehaze = np.clip(np.rollaxis(dehaze.cpu().detach().numpy(),1,4)*255,0,255)
     image = Image.fromarray(output[0].astype(np.uint8))
     image.save(opt['results_path']+"/"+str(i)+".png")
-
+    image = Image.fromarray(trans[0].astype(np.uint8))
+    image.save(opt['results_path']+"/"+str(i)+"_trans.png")
+    image = Image.fromarray(atmos[0].astype(np.uint8))
+    image.save(opt['results_path']+"/"+str(i)+"_atmos.png")
+    image = Image.fromarray(dehaze[0].astype(np.uint8))
+    image.save(opt['results_path']+"/"+str(i)+"_dehaze.png")
     
 
                

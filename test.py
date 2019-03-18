@@ -9,8 +9,7 @@ from time import time
 
 
 # internal libraries
-from models.linknet import LinkNet,FullNet
-#from haze_dataset import HazeDataset
+from models.models import LinkNet,FullNet
 from hezhang_dataset import HeZhangDataset
 
 # Load config file 

@@ -1,0 +1,7 @@
+{
+    "root": "./dataset",
+    "haze": "haze",
+    "results_path": "./results_NITRE_train",
+    "device":"cuda",
+    "is_train":0
+}

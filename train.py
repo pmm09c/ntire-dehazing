@@ -6,7 +6,7 @@ import torch.nn as nn
 import numpy as np
 
 # internal libraries
-from models.linknet import LinkNet,FullNet
+from models.models import LinkNet,FullNet
 from hezhang_dataset import HeZhangDataset
 
 # Load config file 

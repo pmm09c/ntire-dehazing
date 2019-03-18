@@ -4,9 +4,10 @@ import json
 import torch
 import torch.nn as nn
 import numpy as np
+import pytorch_msssim
 
 # internal libraries
-from models.linknet import LinkNet,FullNet
+from models.models import LinkNet,FullNet
 from nitre_dataset import NITREDataset
 
 # Load config file 
@@ -50,19 +51,26 @@ image_loss = nn.MSELoss()
 best_loss = np.inf
 pad = nn.ReflectionPad2d((0,0,8,8)).to(device)
 crop = nn.ReflectionPad2d((0,0,-8,-8)).to(device)
+msssim = pytorch_msssim.MSSSIM()
 for epoch in range(num_epochs):
     epoch_loss = 0
     for i, (haze,image) in enumerate(train_loader):
         haze = haze.to(device)
         haze = pad(haze)
         image = image.to(device)
-
         # compute required losses
         loss_msg = ''
         output,trans,atmos,dehaze = model(haze)
         output=crop(output)
+        # TODO: Add Flag MSE
         loss = image_loss(output,image)
         loss_msg += ' Image Loss : {:.4f}'.format(loss.item())
+        # TODO: Add Flag MSSSIM
+        loss_msssim = (1-msssim(output,image))/2
+        loss_msg += ' MS-SSIM Loss : {:.4f}'.format(loss_msssim.item())
+        # TODO: Add SSIM
+        # TODO: Add discriminator
+        loss += loss_msssim
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
