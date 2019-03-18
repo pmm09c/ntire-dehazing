@@ -60,6 +60,8 @@ class NITREDataset(data.Dataset):
     def __getitem__(self, idx):
         input_image = np.array(Image.open(self.path_haze + "/" + self.image_paths_haze[idx]))
         label_image = 0
+        label_trans = 0
+        label_atmos = 0
         if self.is_train:
             label_image = np.array(Image.open(self.path_clean + "/" + self.image_paths_clean[idx]))
             label_trans = np.array(Image.open(self.path_trans + "/" + self.image_paths_trans[idx]))
