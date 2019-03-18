@@ -59,9 +59,14 @@ else:
     exit()
 
 # Loss 
-trans_loss = opt['loss_trans'].upper()
-atmos_loss = opt['loss_atmos'].upper()
-image_loss = opt['loss_image'].upper()
+trans_loss = [x for x in opt['loss_trans'].upper()]
+atmos_loss = [x for x in opt['loss_atmos'].upper()]
+image_loss = [x for x in opt['loss_image'].upper()]
+## TODO
+## the loss should be incorporated like this
+## Loss = MSE(output,target) if ('MSE' in trans_loss) else Loss
+## the above will add MSE if it exists in trans_loss else do nothing
+
 
 # Dataset
 train_dataset = HeZhangDataset(opt)
