@@ -5,12 +5,20 @@
     
     "batch_size": 32,
     "learning_rate": 0.001,
-    "num_epochs": 1000,
+    "num_epochs": 30,
     
     "weights_path": "./atmos-hezhang",
-    "device":"cuda:1",
-
-    "loss_trans":"",
-    "loss_atmos":"MSE",
-    "loss_image":""
+    "device": "cuda:1",
+    
+    "loss_trans": [],
+    "loss_trans_w": [],
+    "loss_atmos": ["MSE"],
+    "loss_atmos_w": [1.0],
+    "loss_dhaze": [],
+    "loss_dhaze_w": [],
+    "loss_image": [],
+    "loss_image_w": [],
+    "loss_discr": [],
+    "loss_discr_w": [],
+    "pad": [0,0]
 }

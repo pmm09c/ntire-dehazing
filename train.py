@@ -6,8 +6,10 @@ import torch.nn as nn
 import numpy as np
 
 # internal libraries
-from models.models import LinkNet,FullNet
+from models.models import LinkNet,FullNet,Discriminator
 from hezhang_dataset import HeZhangDataset
+from pytorch_ssim import ssim
+from pytorch_msssim import MSSSIM
 
 # Load config file 
 opt_file = open(sys.argv[1], "r")
@@ -42,7 +44,7 @@ elif MODE == 'ATMOS':
         model.load_state_dict(torch.load(sys.argv[2]))
     except Exception as e:
         print("No weights. Training from scratch.")
-elif MODE == 'FULL':
+elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
     model = FullNet().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
@@ -53,72 +55,97 @@ elif MODE == 'FULL':
             model.load_state_dict(torch.load(sys.argv[2]))
         except Exception as e:
             print("No weights. Training from scratch.")
-
+    if MODE == 'FULL_GAN':
+        model_d = Discriminator().to(device)
+        optimizer_d = torch.optim.Adam(model_d.parameters(), lr=learning_rate)
 else:
-    print('MODE INCORRECT : TRANS or ATMOS or FULL')
+    print('MODE INCORRECT : TRANS or ATMOS or FULL or GAN')
     exit()
 
-# Loss 
-trans_loss = [x for x in opt['loss_trans'].upper()]
-atmos_loss = [x for x in opt['loss_atmos'].upper()]
-image_loss = [x for x in opt['loss_image'].upper()]
-## TODO
-## the loss should be incorporated like this
-## Loss = MSE(output,target) if ('MSE' in trans_loss) else Loss
-## the above will add MSE if it exists in trans_loss else do nothing
-
+# Loss
+criterion = {'L1':nn.L1Loss(),'MSE':nn.MSELoss(),'BCE':nn.BCELoss(),'Huber':nn.SmoothL1Loss(),'SSIM':ssim,'MSSSIM':MSSSIM()}
+trans_loss = [x.upper() for x in opt['loss_trans']]
+atmos_loss = [x.upper() for x in opt['loss_atmos']]
+image_loss = [x.upper() for x in opt['loss_image']]
+dhaze_loss = [x.upper() for x in opt['loss_dhaze']]
+discr_loss = [x.upper() for x in opt['loss_discr']]
+trans_criterion = [ criterion[x] for x in trans_loss ]
+atmos_criterion = [ criterion[x] for x in atmos_loss ]
+image_criterion = [ criterion[x] for x in image_loss ]
+dhaze_criterion = [ criterion[x] for x in dhaze_loss ]
+discr_criterion = [ criterion[x] for x in discr_loss ]
 
 # Dataset
 train_dataset = HeZhangDataset(opt)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                            batch_size=opt['batch_size'], 
                                            shuffle=True)
-total_step = len(train_loader)
-
-if trans_loss == 'MSE':
-    trans_loss = nn.MSELoss()
-if atmos_loss == 'MSE':
-    atmos_loss = nn.MSELoss()
-if image_loss == 'MSE':
-    image_loss = nn.MSELoss()
-    
+total_step = len(train_loader)    
 best_loss = np.inf
+
+pad = nn.ReflectionPad2d((0,0,opt['pad'][0],opt['pad'][1])).to(device)
+crop = nn.ReflectionPad2d((0,0,-opt['pad'][0],-opt['pad'][1])).to(device)
+
+# Training Loop
 for epoch in range(num_epochs):
     epoch_loss = 0
+
     for i, (haze,image,image_trans,image_atmos) in enumerate(train_loader):
         haze = haze.to(device)
-        
+        haze = pad(haze)
+        loss_msg = ''       
         # copy required data to device
-        if image_loss :
+        if len(image_loss) :
             image = image.to(device)
-        if trans_loss :
+        if len(trans_loss) :
             image_trans = image_trans.to(device)
-        if atmos_loss :
+        if len(atmos_loss) :
             image_atmos = image_atmos.to(device)
 
-        # compute required losses
-        loss_msg = ''
-        iloss = 0
-        tloss = 0
-        aloss = 0
-        if trans_loss :
+        if MODE == 'TRANS':
             output = model(haze)
-            tloss = trans_loss(output,image_trans)
-            loss_msg += ' Trans Loss : {:.4f}'.format(tloss.item())
-        elif atmos_loss :
+            output = crop(output)
+            loss = sum([ c(output, image_trans) for c in trans_criterion ])
+            loss_msg += ' Trans Loss : {:.4f}'.format(loss.item())
+        elif MODE == 'ATMOS':
             output = model(haze)
-            aloss = atmos_loss(output,image_atmos)
-            loss_msg += ' Atmos Loss : {:.4f}'.format(aloss.item())
-        elif image_loss :
+            output=crop(output)
+            loss = sum([ c(output, image_atmos) for c in atmos_criterion ])
+            loss_msg += ' Atmos Loss : {:.4f}'.format(loss.item())
+        elif MODE == 'FULL' or MODE == 'GAN':
             output,trans,atmos,dehaze = model(haze)
-            iloss = image_loss(output,image)
-            loss_msg += ' Image Loss : {:.4f}'.format(iloss.item())
-        loss = tloss + aloss + iloss
-        optimizer.zero_grad()
+            output = crop(output)
+            output = crop(trans)
+            output = crop(atmos)
+            output = crop(dehaze)
+            tloss = sum([ c(trans, image_trans)*w for c,w in zip(trans_criterion,opt['loss_trans_w'])])
+            aloss = sum([ c(atmos, image_atmos)*w for c,w in zip(trans_criterion,opt['loss_atmos_w'])])
+            dloss = sum([ c(dehaze, image)*w for c,w in zip(trans_criterion,opt['loss_dhaze_w'])])
+            iloss = sum([ c(output, image)*w for c,w in zip(trans_criterion,opt['loss_image_w'])])
+            loss = tloss + aloss + iloss + dloss
+            loss_msg += ' T : {:.4f}'.format(tloss.item())          
+            loss_msg += ' A : {:.4f}'.format(aloss.item())
+            loss_msg += ' J : {:.4f}'.format(dloss.item())
+            loss_msg += ' I : {:.4f}'.format(iloss.item())
+            if MODE == 'GAN':
+                target_real = Variable(torch.rand(image.shape[0],1)*0.5 + 0.7).cuda()
+                target_fake = Variable(torch.rand(image.shape[0],1)*0.3).cuda()
+                real = Variable(image)                
+                dloss_r = sum([ c(model_d(image), target_real)*w for c,w in zip(discr_criterion,opt['loss_discr_w'])])
+                dloss_f = sum([ c(model_d(output), target_fake)*w for c,w in zip(discr_criterion,opt['loss_discr_w'])])
+                loss_msg += ' real : {:.4f}'.format(dloss_r.item())
+                loss_msg += ' fake : {:.4f}'.format(dloss_f.item())
+                loss_d = dloss_r + dloss_f
+                discriminator.zero_grad()
+                dloss.backward()
+                optimizer_d.step()
+                loss += dloss_f*1e-2
+        model.zero_grad()
         loss.backward()
         optimizer.step()
+        
         epoch_loss += loss.item()
-        print ("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f} Avg Epoch Loss: {:.4f}".format(epoch+1, num_epochs, i+1, total_step, loss.item(),epoch_loss/(i+1))+loss_msg)
+        print ("Epoch [{}/{}], Step [{}/{}] Avg Epoch Loss: {:.4f} Loss: {:.4f}".format(epoch+1, num_epochs, i+1, total_step, epoch_loss/(i+1), loss.item())+loss_msg)
     if epoch_loss < best_loss:
         best_loss = epoch_loss
         torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")
