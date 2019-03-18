@@ -1,14 +1,19 @@
 {
     "mode": "gan",
-    "root": "./dataset-full",
-    "dataset": "hezhang",
-    "haze": "train512",
+    "dataset": "nitre",
+    "root": "./dataset",
+    "haze": "haze",
+    "image": "clean",
+    "atmos": "atmos",
+    "trans": "trans",
     
     "batch_size": 8,
     "learning_rate": 0.001,
     "num_epochs": 30,
-    
-    "weights_path": "./wgts/gan-hezhang",
+    "transforms": ["rotation"],
+    "learning_rate": 0.001,    
+
+    "weights_path": "./wgts/gan-nitre",
     "device":"cuda",
 
     "loss_trans": ["MSE"],

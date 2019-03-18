@@ -1,14 +1,19 @@
 {
-    "mode": "gan",
-    "root": "./dataset-full",
-    "dataset": "hezhang",
-    "haze": "train512",
-    
-    "batch_size": 8,
+    "mode": "full",
+    "dataset": "nitre",
+    "root": "./dataset",
+    "haze": "haze",
+    "image": "clean",
+    "atmos": "atmos",
+    "trans": "trans",
+
+    "batch_size": 4,
     "learning_rate": 0.001,
     "num_epochs": 30,
+    "augment":1,
+    "transforms": ["rotation"],
     
-    "weights_path": "./wgts/gan-hezhang",
+    "weights_path": "./wgts/full-nitre",
     "device":"cuda",
 
     "loss_trans": ["MSE"],
@@ -19,7 +24,7 @@
     "loss_dhaze_w": [1.0],
     "loss_image": ["MSE"],
     "loss_image_w": [1.0],
-    "loss_discr": ["BCE"],
-    "loss_discr_w": [1.0],
+    "loss_discr": [],
+    "loss_discr_w": [],
     "pad": [0,0]
 }

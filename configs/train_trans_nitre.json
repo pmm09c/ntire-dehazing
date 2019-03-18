@@ -1,14 +1,19 @@
 {
     "mode": "trans",
-    "dataset": "hezhang",
-    "root": "./dataset-full",
-    "haze": "train512",
+    "dataset": "nitre",
+    "root": "./dataset",
+    "haze": "haze",
+    "image": "clean",
+    "atmos": "atmos",
+    "trans": "trans",
     
     "batch_size": 32,
     "learning_rate": 0.001,
     "num_epochs": 30,
+    "augment":1,
+    "transforms": ["rotation"],
     
-    "weights_path": "./wgts/trans-hezhang",
+    "weights_path": "./wgts/trans-nitre",
     "device":"cuda:0",
     
     "loss_trans": ["MSE"],
@@ -21,5 +26,5 @@
     "loss_image_w": [],
     "loss_discr": [],
     "loss_discr_w": [],
-    "pad": [0,0]
+    "pad": [8,8]
 }

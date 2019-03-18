@@ -1,5 +1,6 @@
 {
     "mode": "full",
+    "dataset": "hezhang",
     "root": "./dataset-full",
     "haze": "train512",
     
@@ -7,7 +8,7 @@
     "learning_rate": 0.001,
     "num_epochs": 30,
     
-    "weights_path": "./full-hezhang",
+    "weights_path": "./wgts/full-hezhang",
     "device":"cuda",
 
     "loss_trans": ["MSE"],
