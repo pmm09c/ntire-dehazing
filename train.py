@@ -4,12 +4,16 @@ import json
 import torch
 import torch.nn as nn
 import numpy as np
+from torch.autograd import Variable
 
 # internal libraries
 from models.models import LinkNet,FullNet,Discriminator
 from hezhang_dataset import HeZhangDataset
+
+# dependencies
 from pytorch_ssim import ssim
 from pytorch_msssim import MSSSIM
+
 
 # Load config file 
 opt_file = open(sys.argv[1], "r")
@@ -55,7 +59,7 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
             model.load_state_dict(torch.load(sys.argv[2]))
         except Exception as e:
             print("No weights. Training from scratch.")
-    if MODE == 'FULL_GAN':
+    if MODE == 'GAN':
         model_d = Discriminator().to(device)
         optimizer_d = torch.optim.Adam(model_d.parameters(), lr=learning_rate)
 else:
@@ -136,8 +140,8 @@ for epoch in range(num_epochs):
                 loss_msg += ' real : {:.4f}'.format(dloss_r.item())
                 loss_msg += ' fake : {:.4f}'.format(dloss_f.item())
                 loss_d = dloss_r + dloss_f
-                discriminator.zero_grad()
-                dloss.backward()
+                model_d.zero_grad()
+                dloss.backward(retain_graph=True)
                 optimizer_d.step()
                 loss += dloss_f*1e-2
         model.zero_grad()

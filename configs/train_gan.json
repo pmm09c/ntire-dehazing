@@ -1,0 +1,24 @@
+{
+    "mode": "gan",
+    "root": "./dataset-full",
+    "haze": "train512",
+    
+    "batch_size": 8,
+    "learning_rate": 0.001,
+    "num_epochs": 30,
+    
+    "weights_path": "./full-hezhang",
+    "device":"cuda",
+
+    "loss_trans": ["MSE"],
+    "loss_trans_w": [1.0],
+    "loss_atmos": ["MSE"],
+    "loss_atmos_w": [1.0],
+    "loss_dhaze": ["MSE"],
+    "loss_dhaze_w": [1.0],
+    "loss_image": ["MSE"],
+    "loss_image_w": [1.0],
+    "loss_discr": ["BCE"],
+    "loss_discr_w": [1.0],
+    "pad": [0,0]
+}
