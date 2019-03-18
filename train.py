@@ -63,6 +63,11 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
     if MODE == 'GAN':
         model_d = Discriminator().to(device)
         optimizer_d = torch.optim.Adam(model_d.parameters(), lr=learning_rate)
+        try:
+            model_d.load_state_dict(torch.load(sys.argv[3]))
+        except Exception as e:
+            print("No weights. Training from scratch.")
+
 else:
     print('MODE INCORRECT : TRANS or ATMOS or FULL or GAN')
     exit()
@@ -157,9 +162,8 @@ for epoch in range(num_epochs):
     if epoch_loss < best_loss:
         best_loss = epoch_loss
         torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")
-        
-torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")          
-
+        if MODE == 'GAN':
+            torch.save(model_d.state_dict(), opt['weights_path'] + "/" + MODE + "_D_" + str(epoch) + ".ckpt")
 
             
 
