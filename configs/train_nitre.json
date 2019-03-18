@@ -4,7 +4,10 @@
     "haze": "haze",
     "image": "clean",
     "is_train":1,
+
     "batch_size": 6,
+    "augment":1,
+    "transforms": ["rotation"],
     "learning_rate": 0.001,
     "num_epochs": 1000,
     
