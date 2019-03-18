@@ -4,7 +4,7 @@
     "root": "./dataset-full",
     "haze": "train512",
     
-    "batch_size": 32,
+    "batch_size": 64,
     "learning_rate": 0.001,
     "num_epochs": 30,
     
@@ -12,11 +12,11 @@
     "device":"cuda",
 
     "loss_trans": ["MSE"],
-    "loss_trans_w": [1.0],
+    "loss_trans_w": [0.1],
     "loss_atmos": ["MSE"],
-    "loss_atmos_w": [1.0],
+    "loss_atmos_w": [0.1],
     "loss_dhaze": ["MSE"],
-    "loss_dhaze_w": [1.0],
+    "loss_dhaze_w": [0.1],
     "loss_image": ["MSE"],
     "loss_image_w": [1.0],
     "loss_discr": [],
