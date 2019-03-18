@@ -57,7 +57,7 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
         model.atmos.load_state_dict(torch.load(sys.argv[3]))
         for param in model.trans.parameters():
             param.requires_grad = False
-        for param in model.trans.parameters():
+        for param in model.atmos.parameters():
             param.requires_grad = False
     except Exception as e:
         try:
@@ -148,12 +148,15 @@ for epoch in range(num_epochs):
             aloss = sum([ c(atmos, image_atmos)*w for c,w in zip(atmos_criterion,opt['loss_atmos_w'])])
             dloss = sum([ c(dehaze, image)*w for c,w in zip(dhaze_criterion,opt['loss_dhaze_w'])])
             iloss = sum([ c(output, image)*w for c,w in zip(image_criterion,opt['loss_image_w'])])
-            loss = iloss
-            loss = tloss + aloss + dloss
-            loss_msg += ' T : {:.4f}'.format(tloss.item())
-            loss_msg += ' A : {:.4f}'.format(aloss.item())
-            loss_msg += ' J : {:.4f}'.format(dloss.item())
-            loss_msg += ' I : {:.4f}'.format(iloss.item())
+            loss = iloss + tloss + aloss + dloss
+            if len(trans_loss):
+                loss_msg += ' T : {:.4f}'.format(tloss.item())
+            if len(atmos_loss):
+                loss_msg += ' A : {:.4f}'.format(aloss.item())
+            if len(dhaze_loss):
+                loss_msg += ' J : {:.4f}'.format(dloss.item())
+            if len(image_loss):
+                loss_msg += ' I : {:.4f}'.format(iloss.item())
             if MODE == 'GAN':
                 ones_const = Variable(torch.ones(image.shape[0], 1)).to(device)
                 target_real = Variable(torch.rand(image.shape[0],1)*0.5 + 0.7).to(device)
