@@ -107,24 +107,30 @@ for epoch in range(num_epochs):
         haze = haze.to(device)
         haze = pad(haze)
         loss_msg = ''       
+
         # copy required data to device
-        if len(image_loss) :
+        if len(image_loss):
             image = image.to(device)
-        if len(trans_loss) :
+        if len(trans_loss):
             image_trans = image_trans.to(device)
-        if len(atmos_loss) :
+        if len(atmos_loss):
             image_atmos = image_atmos.to(device)
 
+        # Train transmission map network
         if MODE == 'TRANS':
             output = model(haze)
             output = crop(output)
             loss = sum([ c(output, image_trans) for c in trans_criterion ])
             loss_msg += ' Trans Loss : {:.4f}'.format(loss.item())
+
+        # Train atmospheric light estimation network
         elif MODE == 'ATMOS':
             output = model(haze)
             output=crop(output)
             loss = sum([ c(output, image_atmos) for c in atmos_criterion ])
             loss_msg += ' Atmos Loss : {:.4f}'.format(loss.item())
+
+        # Train full network (light atmospheric estimation, transmission map, dehazed image; with or without GAN loss)
         elif MODE == 'FULL' or MODE == 'GAN':
             output,trans,atmos,dehaze = model(haze)
             output = crop(output)
@@ -153,20 +159,17 @@ for epoch in range(num_epochs):
                 dloss.backward(retain_graph=True)
                 optimizer_d.step()
                 loss += dloss_f*1e-2
+
         model.zero_grad()
         loss.backward()
         optimizer.step()
         
         epoch_loss += loss.item()
         print ("Epoch [{}/{}], Step [{}/{}] Avg Epoch Loss: {:.4f} Loss: {:.4f}".format(epoch+1, num_epochs, i+1, total_step, epoch_loss/(i+1), loss.item())+loss_msg)
+
+    # Save weights
     if epoch_loss < best_loss:
         best_loss = epoch_loss
         torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")
         if MODE == 'GAN':
             torch.save(model_d.state_dict(), opt['weights_path'] + "/" + MODE + "_D_" + str(epoch) + ".ckpt")
-
-            
-
-
-
-
