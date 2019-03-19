@@ -15,7 +15,6 @@ from nitre_dataset import NITREDataset
 from pytorch_ssim import ssim
 from pytorch_msssim import MSSSIM
 
-
 # Load config file 
 opt_file = open(sys.argv[1], "r")
 opt = json.load(opt_file)
@@ -84,6 +83,7 @@ def sdim(output,target):
 
 def mssdim(output,target):
     return (1.-MSSSIM(output,target))/2.
+
 criterion = {'L1':nn.L1Loss(),'MSE':nn.MSELoss(),'BCE':nn.BCELoss(),'Huber':nn.SmoothL1Loss(),'SSIM':sdim,'MSSSIM':mssdim}
 trans_loss = [x.upper() for x in opt['loss_trans']]
 atmos_loss = [x.upper() for x in opt['loss_atmos']]
@@ -137,7 +137,7 @@ for epoch in range(num_epochs):
         # Train atmospheric light estimation network
         elif MODE == 'ATMOS':
             output = model(haze)
-            output=crop(output)
+            output = crop(output)
             loss = sum([ c(output, image_atmos) for c in atmos_criterion ])
             loss_msg += ' Atmos Loss : {:.4f}'.format(loss.item())
 
@@ -151,7 +151,8 @@ for epoch in range(num_epochs):
             tloss = sum([ c(trans, image_trans)*w for c,w in zip(trans_criterion,opt['loss_trans_w'])])
             aloss = sum([ c(atmos, image_atmos)*w for c,w in zip(atmos_criterion,opt['loss_atmos_w'])])
             dloss = sum([ c(dehaze, image)*w for c,w in zip(dhaze_criterion,opt['loss_dhaze_w'])])
-            iloss = sum([ c(output, image)*w for c,w in zip(image_criterion,opt['loss_image_w'])])
+            ilosses = [ c(output, image)*w for c,w in zip(image_criterion,opt['loss_image_w'])]
+            iloss = sum(ilosses)
             loss = iloss + tloss + aloss + dloss
             if len(trans_loss):
                 loss_msg += ' T : {:.4f}'.format(tloss.item())
@@ -160,7 +161,10 @@ for epoch in range(num_epochs):
             if len(dhaze_loss):
                 loss_msg += ' J : {:.4f}'.format(dloss.item())
             if len(image_loss):
-                loss_msg += ' I : {:.4f}'.format(iloss.item())
+                loss_msg += ' I- '
+                for idx, l in enumerate(opt['loss_image']):
+                    loss_msg += l + ': {:.4f} '.format(ilosses[idx].item())
+                loss_msg += 'Total I: {:.4f}'.format(iloss.item())
             if MODE == 'GAN':
                 ones_const = Variable(torch.ones(image.shape[0], 1)).to(device)
                 target_real = Variable(torch.rand(image.shape[0],1)*0.1 + 0.9).to(device)
