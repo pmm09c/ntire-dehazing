@@ -7,7 +7,7 @@ import numpy as np
 from torch.autograd import Variable
 
 # internal libraries
-from models.models import LinkNet,FullNet,Discriminator
+from models.models import LinkNet,FullNet,Discriminator,ContentLoss
 from hezhang_dataset import HeZhangDataset
 from nitre_dataset import NITREDataset
 
@@ -86,7 +86,7 @@ def sdim(output,target):
 def mssdim(output,target):
     return (1.-MSSSIM(output,target))/2.
 
-criterion = {'L1':nn.L1Loss(),'MSE':nn.MSELoss(),'BCE':nn.BCELoss(),'Huber':nn.SmoothL1Loss(),'SSIM':sdim,'MSSSIM':mssdim}
+criterion = {'L1':nn.L1Loss(),'MSE':nn.MSELoss(),'BCE':nn.BCELoss(),'Huber':nn.SmoothL1Loss(),'SSIM':sdim,'MSSSIM':mssdim,'CONTENT':ContentLoss(device)}
 trans_loss = [x.upper() for x in opt['loss_trans']]
 atmos_loss = [x.upper() for x in opt['loss_atmos']]
 image_loss = [x.upper() for x in opt['loss_image']]
