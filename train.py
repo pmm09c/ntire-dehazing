@@ -59,10 +59,11 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
             param.requires_grad = False
         for param in model.atmos.parameters():
             param.requires_grad = False
+        model = nn.DataParallel(model)
     except Exception as e:
         try:
-            model.load_state_dict(torch.load(sys.argv[2]))
             model = nn.DataParallel(model)
+            model.load_state_dict(torch.load(sys.argv[2]))
         except Exception as e:
             print("No weights. Training from scratch.")
     if MODE == 'GAN':
@@ -76,11 +77,14 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
 else:
     print('MODE INCORRECT : TRANS or ATMOS or FULL or GAN')
     exit()
-print(model)
-model = nn.DataParallel(model)
 
 # Loss
-criterion = {'L1':nn.L1Loss(),'MSE':nn.MSELoss(),'BCE':nn.BCELoss(),'Huber':nn.SmoothL1Loss(),'SSIM':ssim,'MSSSIM':MSSSIM()}
+def sdim(output,target):
+    return (1.-ssim(output,target))/2.
+
+def mssdim(output,target):
+    return (1.-MSSSIM(output,target))/2.
+criterion = {'L1':nn.L1Loss(),'MSE':nn.MSELoss(),'BCE':nn.BCELoss(),'Huber':nn.SmoothL1Loss(),'SSIM':sdim,'MSSSIM':mssdim}
 trans_loss = [x.upper() for x in opt['loss_trans']]
 atmos_loss = [x.upper() for x in opt['loss_atmos']]
 image_loss = [x.upper() for x in opt['loss_image']]
@@ -159,8 +163,8 @@ for epoch in range(num_epochs):
                 loss_msg += ' I : {:.4f}'.format(iloss.item())
             if MODE == 'GAN':
                 ones_const = Variable(torch.ones(image.shape[0], 1)).to(device)
-                target_real = Variable(torch.rand(image.shape[0],1)*0.5 + 0.7).to(device)
-                target_fake = Variable(torch.rand(image.shape[0],1)*0.3).to(device)
+                target_real = Variable(torch.rand(image.shape[0],1)*0.1 + 0.9).to(device)
+                target_fake = Variable(torch.rand(image.shape[0],1)*0.1).to(device)
                 real = Variable(image)                
                 dloss_r = sum([ c(model_d(image), target_real)*w for c,w in zip(discr_criterion,opt['loss_discr_w'])])
                 dloss_f = sum([ c(model_d(Variable(output)), target_fake)*w for c,w in zip(discr_criterion,opt['loss_discr_w'])])
@@ -173,7 +177,7 @@ for epoch in range(num_epochs):
                 loss_msg += ' advs : {:.4f}'.format(gloss.item())
                 loss_msg += ' dreal : {:.4f}'.format(dloss_r.item())
                 loss_msg += ' dfake : {:.4f}'.format(dloss_f.item())
-                loss += dloss_f*1e-2
+                loss += gloss
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()

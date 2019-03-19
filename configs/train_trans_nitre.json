@@ -1,15 +1,16 @@
 {
     "mode": "trans",
     "dataset": "nitre",
-    "root": "./dataset",
+    "root": "./nitre_dataset/full",
     "haze": "haze",
     "image": "clean",
     "atmos": "atmos",
     "trans": "trans",
     
-    "batch_size": 32,
+    "batch_size": 12,
     "learning_rate": 0.001,
     "num_epochs": 30,
+    
     "is_train":1,
     "augment":1,
     "transforms": ["rotation"],

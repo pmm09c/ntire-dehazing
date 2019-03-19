@@ -4,15 +4,14 @@
     "dataset": "hezhang",
     "haze": "train512",
     
-    "batch_size": 16,
+    "batch_size": 6,
     "learning_rate": 0.001,
-    "num_epochs": 30,
+    "num_epochs": 10,
     
     "weights_path": "./wgts/gan-hezhang",
     "device":"cuda",
-
     "loss_trans": ["MSE"],
-    "loss_trans_w": [1.0],
+    "loss_trans_w": [1.0],    
     "loss_atmos": ["MSE"],
     "loss_atmos_w": [1.0],
     "loss_dhaze": ["MSE"],
