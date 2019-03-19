@@ -33,7 +33,7 @@ train_loader = torch.utils.data.DataLoader(dataset=train_dataset)
 total_step = len(train_loader)
 pad = nn.ReflectionPad2d((0,0,8,8))
 crop = nn.ReflectionPad2d((0,0,-8,-8)).to(device)
-for i, (haze,_) in enumerate(train_loader):
+for i, (haze,_,_,_) in enumerate(train_loader):
     haze = haze.to(device)
     haze = pad(haze)
     t = time()
