@@ -63,6 +63,8 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
         try:
             model = nn.DataParallel(model)
             model.load_state_dict(torch.load(sys.argv[2]))
+            #for param in model.parameters():
+            #    param.requires_grad = False
         except Exception as e:
             print("No weights. Training from scratch.")
     if MODE == 'GAN':
@@ -72,7 +74,7 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
             model_d.load_state_dict(torch.load(sys.argv[3]))
             model_d = nn.DataParallel(model_d)
         except Exception as e:
-            print("No weights. Training from scratch.")
+            print("No weights. Training from scratch discrim.")
 else:
     print('MODE INCORRECT : TRANS or ATMOS or FULL or GAN')
     exit()
@@ -167,15 +169,14 @@ for epoch in range(num_epochs):
                 loss_msg += 'Total I: {:.4f}'.format(iloss.item())
             if MODE == 'GAN':
                 ones_const = Variable(torch.ones(image.shape[0], 1)).to(device)
-                target_real = Variable(torch.rand(image.shape[0],1)*0.1 + 0.9).to(device)
-                target_fake = Variable(torch.rand(image.shape[0],1)*0.1).to(device)
+                target_real = Variable(torch.rand(image.shape[0],1)*0.7 + 0.5).to(device)
+                target_fake = Variable(torch.rand(image.shape[0],1)*0.3).to(device)
                 real = Variable(image)                
                 dloss_r = sum([ c(model_d(image), target_real)*w for c,w in zip(discr_criterion,opt['loss_discr_w'])])
                 dloss_f = sum([ c(model_d(Variable(output)), target_fake)*w for c,w in zip(discr_criterion,opt['loss_discr_w'])])
-
                 loss_d = dloss_r + dloss_f
                 optimizer_d.zero_grad()
-                dloss.backward(retain_graph=True)
+                loss_d.backward()
                 optimizer_d.step()
                 gloss = sum([ c(model_d(Variable(output)), ones_const)*w for c,w in zip(discr_criterion,opt['loss_discr_w'])])
                 loss_msg += ' advs : {:.4f}'.format(gloss.item())
