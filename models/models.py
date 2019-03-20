@@ -211,9 +211,10 @@ class HalfNet(nn.Module):
     def __init__(self):
         
         super(HalfNet, self).__init__()
-        self.trans = LinkNet()
+        self.trans = LinkNet(n_classes=32)
         self.tanh=nn.Tanh()
-        self.refine1= nn.Conv2d(6, 20, kernel_size=3,stride=1,padding=1)
+        self.refine0= nn.Conv2d(3, 32, kernel_size=3,stride=1,padding=1)
+        self.refine1= nn.Conv2d(64, 20, kernel_size=3,stride=1,padding=1)
         self.refine2= nn.Conv2d(20, 20, kernel_size=3,stride=1,padding=1)
         self.threshold=nn.Threshold(0.1, 0.1)
         self.conv1010 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
@@ -222,6 +223,7 @@ class HalfNet(nn.Module):
         self.conv1040 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
         self.refine3= nn.Conv2d(20+4, 3, kernel_size=3,stride=1,padding=1)
         self.upsample = F.upsample_nearest
+        self.relu0=nn.LeakyReLU(0.2)
         self.relu1=nn.LeakyReLU(0.2)
         self.relu2=nn.LeakyReLU(0.2)
         self.relu3=nn.LeakyReLU(0.2)
@@ -232,6 +234,8 @@ class HalfNet(nn.Module):
     def forward(self,I):
         t = torch.clamp(self.trans(I),min=.01,max=0.99)
         # Adapted from He Zhang https://github.com/hezhangsprinter/DCPDN
+        # Bring I to feature space for concatenation
+        I = self.relu0((self.refine0(I)))
         dehaze=torch.cat([t,I],1)
         dehaze=self.relu1((self.refine1(dehaze)))
         dehaze=self.relu2((self.refine2(dehaze)))
