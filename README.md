@@ -20,9 +20,17 @@ Image restoration projects
 The code has been developed and tested with pytorch 1.0+ in a conda environment
 
 ```bash
+conda activate {Project Environment}
 git clone ${repository}
 cd IRP
 conda install --yes --file requirements.txt
+cd ..
+git clone https://github.com/Po-Hsun-Su/pytorch-ssim
+git clone https://github.com/jorge-pessoa/pytorch-msssim
+cd pytorch-ssim 
+python setup.py
+cd ../pytorch-msssim
+python setup.py
 ```
 
 Datasets used were provided by NITRE and the He, Zhang training Dataset found at https://github.com/hezhangsprinter/DCPDN
