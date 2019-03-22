@@ -7,7 +7,7 @@ import numpy as np
 from torch.autograd import Variable
 
 # internal libraries
-from models.models import LinkNet,FullNet,Discriminator,ContentLoss
+from models.models import LinkNet,FastNet,FullNet,Discriminator,ContentLoss
 from hezhang_dataset import HeZhangDataset
 from nitre_dataset import NITREDataset
 
@@ -43,6 +43,13 @@ if MODE == 'TRANS':
         print("No weights. Training from scratch.")
 elif MODE == 'ATMOS':
     model = LinkNet().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    try:
+        model.load_state_dict(torch.load(sys.argv[2]))
+    except Exception as e:
+        print("No weights. Training from scratch.")
+elif MODE == 'FAST':
+    model = FastNet().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
         model.load_state_dict(torch.load(sys.argv[2]))
@@ -115,6 +122,7 @@ crop = nn.ReflectionPad2d((0,0,-opt['pad'][0],-opt['pad'][1])).to(device)
 # Training Loop
 for epoch in range(num_epochs):
     epoch_loss = 0
+    latest_msg = ''
 
     for i, (haze,image,image_trans,image_atmos) in enumerate(train_loader):
         haze = haze.to(device)
@@ -143,6 +151,23 @@ for epoch in range(num_epochs):
             loss = sum([ c(output, image_atmos) for c in atmos_criterion ])
             loss_msg += ' Atmos Loss : {:.4f}'.format(loss.item())
 
+
+        # Train network with 1 LinkNet and no physics model
+        elif MODE == 'FAST':
+            output,ft = model(haze)
+            output = crop(output)
+            ilosses = [ c(output, image)*w for c,w in zip(image_criterion,opt['loss_image_w'])]
+            iloss = sum(ilosses)
+            loss = iloss
+            if len(image_loss):
+                loss_msg += ' Total I: {:.4f}, '.format(iloss.item())
+                for idx, l in enumerate(opt['loss_image']):
+                    if idx == len(opt['loss_image'])-1:
+                        loss_msg += l + ': {:.4f} '.format(ilosses[idx].item())
+                    else:
+                        loss_msg += l + ': {:.4f}, '.format(ilosses[idx].item())
+
+
         # Train full network (light atmospheric estimation, transmission map, dehazed image; with or without GAN loss)
         elif MODE == 'FULL' or MODE == 'GAN':
             output,trans,atmos,dehaze = model(haze)
@@ -163,10 +188,12 @@ for epoch in range(num_epochs):
             if len(dhaze_loss):
                 loss_msg += ' J : {:.4f}'.format(dloss.item())
             if len(image_loss):
-                loss_msg += ' I- '
+                loss_msg += ' Total I: {:.4f}, '.format(iloss.item())
                 for idx, l in enumerate(opt['loss_image']):
-                    loss_msg += l + ': {:.4f} '.format(ilosses[idx].item())
-                loss_msg += 'Total I: {:.4f}'.format(iloss.item())
+                    if idx == len(opt['loss_image'])-1:
+                        loss_msg += l + ': {:.4f} '.format(ilosses[idx].item())
+                    else:
+                        loss_msg += l + ': {:.4f}, '.format(ilosses[idx].item())
             if MODE == 'GAN':
                 ones_const = Variable(torch.ones(image.shape[0], 1)).to(device)
                 target_real = Variable(torch.rand(image.shape[0],1)*0.7 + 0.5).to(device)
@@ -188,7 +215,8 @@ for epoch in range(num_epochs):
         optimizer.step()
         
         epoch_loss += loss.item()
-        print ("Epoch [{}/{}], Step [{}/{}] Avg Epoch Loss: {:.4f} Loss: {:.4f}".format(epoch+1, num_epochs, i+1, total_step, epoch_loss/(i+1), loss.item())+loss_msg)
+        latest_msg = "Epoch: [{}/{}], Step: [{}/{}], Avg Epoch Loss: {:.4f}, Loss: {:.4f},".format(epoch+1, num_epochs, i+1, total_step, epoch_loss/(i+1), loss.item())+loss_msg
+        print(latest_msg)
 
     # Save weights
     if epoch_loss < best_loss:
@@ -196,3 +224,6 @@ for epoch in range(num_epochs):
         torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")
         if MODE == 'GAN':
             torch.save(model_d.state_dict(), opt['weights_path'] + "/" + MODE + "_D_" + str(epoch) + ".ckpt")
+        if opt['log'] == 1:
+            with open(opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".json", "w") as js:
+                json.dump(dict(msg.split(':') for msg in latest_msg.replace(" ","").split(',')), js, indent=4, separators=(',',': '))

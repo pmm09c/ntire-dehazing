@@ -206,11 +206,11 @@ class FullNet(nn.Module):
         dehaze= self.tanh(self.refine3(dehaze))
         return dehaze,t,A,J
 
-class HalfNet(nn.Module):
+class FastNet(nn.Module):
     
     def __init__(self):
         
-        super(HalfNet, self).__init__()
+        super(FastNet, self).__init__()
         self.trans = LinkNet(n_classes=32)
         self.tanh=nn.Tanh()
         self.refine0= nn.Conv2d(3, 32, kernel_size=3,stride=1,padding=1)

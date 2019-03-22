@@ -1,5 +1,5 @@
 {
-    "mode": "full",
+    "mode": "fast",
     "dataset": "nitre",
     "root": "./nitre_dataset/full",
     "haze": "haze",
@@ -16,7 +16,7 @@
     "log":1,
     "transforms": ["rotation"],
     
-    "weights_path": "./wgts/full-nitre",
+    "weights_path": "./wgts/fast-nitre",
     "device":"cuda",
 
     "loss_trans": [],
