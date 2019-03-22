@@ -232,7 +232,7 @@ class HalfNet(nn.Module):
         self.relu6=nn.LeakyReLU(0.2)
         
     def forward(self,I):
-        t = torch.clamp(self.trans(I),min=.01,max=0.99)
+        t = self.trans(I)
         # Adapted from He Zhang https://github.com/hezhangsprinter/DCPDN
         # Bring I to feature space for concatenation
         I = self.relu0((self.refine0(I)))
