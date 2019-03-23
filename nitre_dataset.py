@@ -61,6 +61,7 @@ class NITREDataset(data.Dataset):
                 self.odds = opt['odds']
 
         self.length = len(self.image_paths_haze)
+        self.size = opt['size']
 
     def __len__(self):
         return self.length 
@@ -96,15 +97,20 @@ class NITREDataset(data.Dataset):
                 i += 1
         return images
 
+    def check_size(self, im):
+        if im.size != self.size:
+            im = im.resize(self.size, Image.BILINEAR)
+        return im
+
     def __getitem__(self, idx):
-        input_image = np.array(Image.open(self.path_haze + "/" + self.image_paths_haze[idx]))
+        input_image = np.array(self.check_size(Image.open(self.path_haze + "/" + self.image_paths_haze[idx])))
         label_image = 0
         label_trans = 0
         label_atmos = 0
         if self.is_train:
-            label_image = np.array(Image.open(self.path_clean + "/" + self.image_paths_clean[idx]))
-            label_trans = np.array(Image.open(self.path_trans + "/" + self.image_paths_trans[idx]))
-            label_atmos = np.array(Image.open(self.path_atmos + "/" + self.image_paths_atmos[idx]))
+            label_image = np.array(self.check_size(Image.open(self.path_clean + "/" + self.image_paths_clean[idx])))
+            label_trans = np.array(self.check_size(Image.open(self.path_trans + "/" + self.image_paths_trans[idx])))
+            label_atmos = np.array(self.check_size(Image.open(self.path_atmos + "/" + self.image_paths_atmos[idx])))
             if self.augment:
                 input_image, label_image, label_trans, label_atmos = self.transform_data([input_image, label_image, label_trans, label_atmos])
             label_image = np.rollaxis(label_image, 2, 0).astype(np.float32)/255

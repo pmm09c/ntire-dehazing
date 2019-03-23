@@ -6,19 +6,21 @@
     "image": "clean",
     "atmos": "atmos",
     "trans": "trans",
+    "size": [1600,1200],
 
 
-    "batch_size": 16,
+    "batch_size": 3,
     "learning_rate": 0.001,
     "num_epochs": 1000,
     
     "is_train":1,
     "augment":1,
     "log":1,
-    "transforms": ["rotation"],
+    "transforms": ["rotation","crop"],
+    "odds": {"rotation":0.25,"crop":0.25},
     
-    "weights_path": "./wgts/full-nitre-mse-ssim-content",
-    "device":"cuda",
+    "weights_path": "./wgts/full-nitre-noval-content",
+    "device":"cuda:0",
 
     "loss_trans": [],
     "loss_trans_w": [],
@@ -26,7 +28,7 @@
     "loss_atmos_w": [],
     "loss_dhaze": [],
     "loss_dhaze_w": [],
-    "loss_image": ["MSE"],
+    "loss_image": ["CONTENT"],
     "loss_image_w": [1.0],
     "loss_discr": [],
     "loss_discr_w": [],
