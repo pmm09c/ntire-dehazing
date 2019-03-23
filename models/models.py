@@ -218,11 +218,11 @@ class LinkNet(nn.Module):
         return y
 
     
-class FullNet(nn.Module):
+class DualFastNet(nn.Module):
     
     def __init__(self):
         
-        super(FullNet, self).__init__()
+        super(DualFastNet, self).__init__()
         self.trans = LinkNet()
         self.atmos = LinkNet()        
         self.tanh=nn.Tanh()

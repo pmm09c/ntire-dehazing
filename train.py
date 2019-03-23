@@ -7,7 +7,7 @@ import numpy as np
 from torch.autograd import Variable
 
 # internal libraries
-from models.models import LinkNet,FastNet,FastNet50,FullNet,Discriminator,ContentLoss
+from models.models import LinkNet,FastNet,FastNet50,DualFastNet,Discriminator,ContentLoss
 from hezhang_dataset import HeZhangDataset
 from nitre_dataset import NITREDataset
 
@@ -73,7 +73,7 @@ elif MODE == 'FAST':
     except Exception as e:
         print("No weights. Training from scratch.")
 elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
-    model = FullNet().to(device)
+    model = DualFastNet().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
         model.trans.load_state_dict(torch.load(sys.argv[2]))
