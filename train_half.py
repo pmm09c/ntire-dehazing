@@ -50,6 +50,7 @@ elif MODE == 'ATMOS':
         print("No weights. Training from scratch.")
 elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
     model = HalfNet().to(device)
+    model = nn.DataParallel(model)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
         model.trans.load_state_dict(torch.load(sys.argv[2]))

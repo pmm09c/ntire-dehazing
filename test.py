@@ -49,7 +49,7 @@ for i, (haze,_,_,_) in enumerate(train_loader):
     t = time()
     if MODE == 'TRANS' :
         output = model(haze)
-    elif MODE == 'ATMOS' :
+    elif MODE == 'ATMOS' :x
         output = model(haze)
     else :
         output,trans,atmos,dehaze = model(haze)

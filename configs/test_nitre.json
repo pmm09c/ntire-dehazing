@@ -1,7 +1,8 @@
 {
-    "root": "./dataset",
+    "mode": "full",
+    "root": "./nitre_dataset/full",
     "haze": "test",
     "results_path": "./results_NITRE",
-    "device":"cuda:0",
+    "device":"cuda",
     "is_train":0
 }
