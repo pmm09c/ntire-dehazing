@@ -62,5 +62,5 @@ python train.py configs/train_nitre.py {full weights}
 python test.py configs/test_nitre.py {nitre weights}
 ``` 
 #### Results
-![Test Image](https://llcad-github.llan.ll.mit.edu/g46-AI/IRP/blob/master/dataset/test/53.png "Example Test Image")
-![Test Image](https://llcad-github.llan.ll.mit.edu/g46-AI/IRP/blob/master/results_nitre/2.png "Example Test Image")
+![Test Image](https://github.com/pmm09c/nitre-dehazing/blob/master/dataset/test/53.png "Example Test Image")
+![Test Dehazed Image](https://github.com/pmm09c/nitre-dehazing/blob/master/results_nitre/2.png "Example Test Image")
