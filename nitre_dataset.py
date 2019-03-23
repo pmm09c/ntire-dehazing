@@ -69,7 +69,7 @@ class NITREDataset(data.Dataset):
         #rand = np.random.randint(2, size=3)
         rand = np.random.random((3,1))
         print(rand)
-        if "saturation" in self.transforms and rand[0] > self.odds['saturation']:
+        if "saturation" in self.transforms and rand[0] < self.odds['saturation']:
             ''' Saturation '''
             enhance_factor = np.random.uniform(0.0,1.0)
             i = 0
@@ -77,14 +77,14 @@ class NITREDataset(data.Dataset):
                 enhancer = ImageEnhance.Color(Image.fromarray(images[i]))
                 images[i] = np.array(enhancer.enhance(enhance_factor))
                 i += 1
-        if "rotation" in self.transforms and rand[1] > self.odds['rotation']:
+        if "rotation" in self.transforms and rand[1] < self.odds['rotation']:
             ''' Rotation (with reflective padding) '''
             angle = random.randrange(0,360)
             i = 0
             while i < len(images):
                 images[i] = rotate(images[i], angle, reshape=False, mode='reflect')
                 i += 1
-        if "crop" in self.transforms and rand[2] > self.odds['crop']:
+        if "crop" in self.transforms and rand[2] < self.odds['crop']:
             '''crop and resize'''
             i = 0
             while i < len(images):
