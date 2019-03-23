@@ -82,6 +82,70 @@ class Decoder(nn.Module):
 
         return x
 
+class LinkNet50(nn.Module):
+    def __init__(self, n_classes=3,pad=(0,0,0,0)):
+        """
+        Model initialization
+        :param x_n: number of input neurons
+        :type x_n: int
+        """
+        super(LinkNet50, self).__init__()
+
+        base = resnet.resnet50(pretrained=True)
+
+        self.in_block = nn.Sequential(
+            base.conv1,
+            base.bn1,
+            base.relu,
+            base.maxpool
+        )
+        self.pad = nn.ReflectionPad2d(pad)
+        self.pad_size = [int(x/2) for x in pad]
+        self.encoder1 = base.layer1
+        self.encoder2 = base.layer2
+        self.encoder3 = base.layer3
+        self.encoder4 = base.layer4
+
+        self.decoder1 = Decoder(256, 64, 3, 1, 1, 0)
+        self.decoder2 = Decoder(512, 256, 3, 2, 1, 1)
+        self.decoder3 = Decoder(1024, 512, 3, 2, 1, 1)
+        self.decoder4 = Decoder(2048, 1024, 3, 2, 1, 1)
+
+        self.tp_conv1 = nn.Sequential(nn.ConvTranspose2d(64, 32, 3, 2, 1, 1),
+                                      nn.BatchNorm2d(32),
+                                      nn.ReLU(inplace=True),)
+        self.conv2 = nn.Sequential(nn.Conv2d(32, 32, 3, 1, 1),
+                                   nn.BatchNorm2d(32),
+                                   nn.ReLU(inplace=True),)
+        self.tp_conv2 = nn.ConvTranspose2d(32, n_classes, 2, 2, 0)
+        self.lsm = nn.ReLU() #nn.LogSoftmax(dim=1)
+
+    def forward(self, x):
+        # Initial block
+        x = self.pad(x)
+        x = self.in_block(x)
+
+        # Encoder blocks
+        e1 = self.encoder1(x)
+        e2 = self.encoder2(e1)
+        e3 = self.encoder3(e2)
+        e4 = self.encoder4(e3)
+
+        # Decoder blocks
+        d4 = e3 + self.decoder4(e4)
+        d3 = e2 + self.decoder3(d4)
+        d2 = e1 + self.decoder2(d3)
+        d1 = x + self.decoder1(d2)
+        y = self.tp_conv1(d1)
+        y = self.conv2(y)
+        y = self.tp_conv2(y)
+
+        y = self.lsm(y) #relu
+        y = y[:,
+              :,
+              self.pad_size[2]:(y.shape[2]-self.pad_size[2]),
+              self.pad_size[3]:(y.shape[3]-self.pad_size[3])]
+        return y  
     
 class LinkNet(nn.Module):
     """
@@ -123,8 +187,7 @@ class LinkNet(nn.Module):
                                 nn.BatchNorm2d(32),
                                 nn.ReLU(inplace=True),)
         self.tp_conv2 = nn.ConvTranspose2d(32, n_classes, 2, 2, 0)
-        self.lsm = nn.ReLU() #nn.LogSoftmax(dim=1)
-
+        self.lsm = nn.ReLU()
 
     def forward(self, x):
         # Initial block
@@ -254,7 +317,56 @@ class FastNet(nn.Module):
         dehaze = torch.cat((x1010, x1020, x1030, x1040, dehaze), 1)
         dehaze= self.tanh(self.refine3(dehaze))
         return dehaze,t
-
+    
+class FastNet50(nn.Module):
+    
+    def __init__(self):
+        
+        super(FastNet50, self).__init__()
+        self.trans = LinkNet50(n_classes=32)
+        self.tanh=nn.Tanh()
+        self.refine0= nn.Conv2d(3, 32, kernel_size=3,stride=1,padding=1)
+        self.refine1= nn.Conv2d(64, 20, kernel_size=3,stride=1,padding=1)
+        self.refine2= nn.Conv2d(20, 20, kernel_size=3,stride=1,padding=1)
+        self.threshold=nn.Threshold(0.1, 0.1)
+        self.conv1010 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
+        self.conv1020 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
+        self.conv1030 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
+        self.conv1040 = nn.Conv2d(20, 1, kernel_size=1,stride=1,padding=0)  # 1mm
+        self.refine3= nn.Conv2d(20+4, 3, kernel_size=3,stride=1,padding=1)
+        self.upsample = F.upsample_nearest
+        self.relu0=nn.LeakyReLU(0.2)
+        self.relu1=nn.LeakyReLU(0.2)
+        self.relu2=nn.LeakyReLU(0.2)
+        self.relu3=nn.LeakyReLU(0.2)
+        self.relu4=nn.LeakyReLU(0.2)
+        self.relu5=nn.LeakyReLU(0.2)
+        self.relu6=nn.LeakyReLU(0.2)
+        
+    def forward(self,I):
+        t = self.trans(I)
+        # Adapted from He Zhang https://github.com/hezhangsprinter/DCPDN
+        # Bring I to feature space for concatenation
+        I = self.relu0((self.refine0(I)))
+        dehaze=torch.cat([t,I],1)
+        dehaze=self.relu1((self.refine1(dehaze)))
+        dehaze=self.relu2((self.refine2(dehaze)))
+        shape_out = dehaze.data.size()
+        shape_out = shape_out[2:4]
+        x101 = F.avg_pool2d(dehaze, 32)
+        x1010 = F.avg_pool2d(dehaze, 32)
+        x102 = F.avg_pool2d(dehaze, 16)
+        x1020 = F.avg_pool2d(dehaze, 16)
+        x103 = F.avg_pool2d(dehaze, 8)
+        x104 = F.avg_pool2d(dehaze, 4)
+        x1010 = self.upsample(self.relu3(self.conv1010(x101)),size=shape_out)
+        x1020 = self.upsample(self.relu4(self.conv1020(x102)),size=shape_out)
+        x1030 = self.upsample(self.relu5(self.conv1030(x103)),size=shape_out)
+        x1040 = self.upsample(self.relu6(self.conv1040(x104)),size=shape_out)
+        dehaze = torch.cat((x1010, x1020, x1030, x1040, dehaze), 1)
+        dehaze= self.tanh(self.refine3(dehaze))
+        return dehaze,t
+    
 def swish(x):
     return x * F.sigmoid(x)
 
