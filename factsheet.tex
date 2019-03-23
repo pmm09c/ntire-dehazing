@@ -1,0 +1,79 @@
+%% Factsheet template for NTIRE 2019 challenge on image dehazing
+%% Radu Timofte
+%%
+
+\documentclass{article}
+
+\title{NTIRE2019 dehazing challenge factsheet\\--Feature Forwarding for Efficient Image Dehazing--}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Team details}
+
+\begin{itemize}
+\item Team name : FastNet                                 
+\item Team leader name : Peter Morales                          
+\item Team leader address, phone number, and email : 244 Wood St, Lexington, MA 02420 office S1-313, 781 981 8738, peter.morales@ll.mit.edu
+\item Rest of the team members : Tzofi Klinghoffer       
+\item Team website URL : https://pmm09c.github.io/nitre-dehazing/                    
+\item Affiliation : MIT Lincoln Laboratory
+\item Affiliation of the team and/or team members with NTIRE2019 sponsors : None
+\item User names and entries on the NTIRE2019 Codalab competitions : pmm09c, tzofi
+\item Best scoring entries of the team during development/validation phase : NA
+\item Link to the codes/executables of the solution(s) : https://github.com/pmm09c/nitre-dehazing
+\end{itemize}
+
+\section{Contribution details}
+
+\begin{itemize}
+\item Title of the contribution : Feature Forwarding for Efficient Image Dehazing                                
+\item General method description : Feed-forward convolutional network. Pretrained feature encoder-to-decoder convolutional architecture to dense convolutional refinement layer.                                    
+\item Description of the particularities of the solutions deployed for each of the challenge competitions or tracks : The encoder-to-decoder architecture was an adapted linknet modified to use ResNet50. The original linknet was developed for image segmantation and the output layers were modified to output a feature map rather than a single channel segmentation map. The refinement layer was adapted from Zhang et al.'s Densely Connected Pyramid Dehazing Network. Unlike Zhang's architecture, our network does not estimate the transmission or airlight for an image, and trains solely from the provided  dataset. Additionally, utilizing pretrained networks for our decoders allows us to process a single image within 0.01s on a titan rtx gpu.   
+\item References : (1) H. Zhang, et al. \textbf{Densely Connected Pyramid Dehazing Network}. https://arxiv.org/abs/1803.08396, (2) A. Chaurasia, et al.                                    
+\textbf{LinkNet: Exploiting Encoder Representations for Efficient Semantic Segmentation}. https://arxiv.org/abs/1707.03718.          
+\item Representative image / diagram of the method(s)             
+\end{itemize}
+
+\section{Global Method Description}
+
+\begin{itemize}
+\item Total method complexity: all stages
+\item Which pre-trained or external methods / models have been used (for any stage, if any) : ResNet50 pretrained on ImageNet
+\item Which additional data has been used in addition to the provided NTIRE training and validation data (at any stage, if any) : O-Haze, I-Haze
+\item Training description : Adam Optimizer, haze input image and clean output image with MSE Loss. Each sample during training could be augmented at random with an image rotations and/or crop.  
+\item Testing description : 3 nitre validation images removed from training set for quantitative evaluation, nitre test images used for qualitative evaluation
+\item Quantitative and qualitative advantages of the proposed solution : Relatively high PSNR relative to leaderboard and detail in areas of very high haze concentration, fast/efficient computation. Could be modified to run on video data.
+\item Results of the comparison to other approaches (if any) : No neural network approaches directly compared, running on He Zhang dataset for paper comparison. Running other appraoches such as ..., ..., did not seem to tackle most of the haze in the scene. Because of this, there were less oddities in the image but much more haze.
+\item Results on other standard benchmarks such as I-HAZE, O-HAZE (if any) : In progress on He Zhang dataset and witheld validation images for comparison
+\item Novelty degree of the solution and if it has been previously published : Novel approach with no previous publication on technique.
+\end{itemize}
+
+
+\section{Ensembles and fusion strategies}
+\begin{itemize}
+\item Describe in detail the use of ensembles and/or fusion strategies (if any). : None
+\item What was the benefit over the single method? : NA
+\item What were the baseline and the fused methods? : NA
+\end{itemize}
+
+\section{Technical details}
+\begin{itemize}
+\item Language and implementation details (including platform, memory, parallelization requirements) : Ubuntu 18.04, 2xTitan RTX,
+\item Human effort required for implementation, training and validation? : Implemented network, training environment
+\item Training/testing time? Runtime at test per image : 0.01 seconds per image ( faster if run in batches )
+\item Comment the robustness and generality of the proposed solution(s)? Is it easy to deploy it for other sets of downscaling operators? : Relatively small model is easy to deploy, can be greatly sped up with tensorRT
+\item Comment the efficiency of the proposed solution(s)? : Compared with most neural network solutions, extremely efficient, in exchange for ssim
+\end{itemize}
+
+\section{Other details}
+\begin{itemize}
+\item Planned submission of a solution(s) description paper at NTIRE2019 workshop. : We plan to outline our method and results on the validation data images, show interesting abnormalities in the data associated withe training with neural networks (examples), and compare speed and performance with the top publicly available networks.
+\item General comments and impressions of the NTIRE2019 challenge. : It was a pleasure to participate and very well run.
+\item What do you expect from a new challenge in image restoration and enhancement? : I find it interesting when there is so much haze that the problem goes beyond physics based approaches and requires in-painting. I'd hope to see a similiar contest next year with even more training data.
+\item Other comments: The leaderboards didn't always work.
+\end{itemize}
+
+\end{document}
