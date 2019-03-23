@@ -7,7 +7,7 @@ import numpy as np
 from torch.autograd import Variable
 
 # internal libraries
-from models.models import LinkNet,FastNet,FullNet,Discriminator,ContentLoss
+from models.models import LinkNet,FastNet,FastNet50,FullNet,Discriminator,ContentLoss
 from hezhang_dataset import HeZhangDataset
 from nitre_dataset import NITREDataset
 
@@ -45,11 +45,31 @@ elif MODE == 'ATMOS':
     model = LinkNet().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
+        model = nn.DataParallel(model)
+        model.load_state_dict(torch.load(sys.argv[2]))
+    except Exception as e:
+        print("No weights. Training from scratch.")
+elif MODE == 'FAST50':
+    model = FastNet50().to(device)
+    for param in model.trans.in_block.parameters():
+        param.requires_grad = False
+    for param in model.trans.encoder1.parameters():
+        param.requires_grad = False
+    for param in model.trans.encoder2.parameters():
+        param.requires_grad = False
+    for param in model.trans.encoder3.parameters():
+        param.requires_grad = False
+    for param in model.trans.encoder4.parameters():
+        param.requires_grad = False
+    model = nn.DataParallel(model)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    try:
         model.load_state_dict(torch.load(sys.argv[2]))
     except Exception as e:
         print("No weights. Training from scratch.")
 elif MODE == 'FAST':
     model = FastNet().to(device)
+    model = nn.DataParallel(model)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
         model.load_state_dict(torch.load(sys.argv[2]))
@@ -153,7 +173,7 @@ for epoch in range(num_epochs):
 
 
         # Train network with 1 LinkNet and no physics model
-        elif MODE == 'FAST':
+        elif MODE == 'FAST' or MODE == 'FAST50':
             output,ft = model(haze)
             output = crop(output)
             ilosses = [ c(output, image)*w for c,w in zip(image_criterion,opt['loss_image_w'])]
