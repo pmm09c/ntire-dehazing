@@ -68,7 +68,6 @@ class NITREDataset(data.Dataset):
     def transform_data(self, images):
         #rand = np.random.randint(2, size=3)
         rand = np.random.random((3,1))
-        print(rand)
         if "saturation" in self.transforms and rand[0] < self.odds['saturation']:
             ''' Saturation '''
             enhance_factor = np.random.uniform(0.0,1.0)
