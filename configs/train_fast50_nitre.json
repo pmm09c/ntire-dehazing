@@ -1,7 +1,7 @@
 {
     "mode": "fast50",
     "dataset": "nitre",
-    "root": "./nitre_dataset/full",
+    "root": "./nitre_dataset",
     "haze": "haze",
     "image": "clean",
     "atmos": "atmos",
@@ -15,10 +15,10 @@
     "is_train":1,
     "augment":1,
     "log":1,
-    "transforms": ["rotation","crop"],
-    "odds": {"rotation":0.25,"crop":0.25},
-    "weights_path": "./wgts/fast50-nitre-mse",
+    "transforms": {"rotation":0.25,"crop":0.25},
+    "weights_path": "./wgts/fast50-nitre",
     "device":"cuda",
+    "parallel":1,
 
     "loss_trans": [],
     "loss_trans_w": [],

@@ -1,11 +1,12 @@
 {
     "mode": "trans",
     "dataset": "nitre",
-    "root": "./nitre_dataset/full",
+    "root": "./nitre_dataset",
     "haze": "haze",
     "image": "clean",
     "atmos": "atmos",
     "trans": "trans",
+    "size": [1600,1200],
     
     "batch_size": 12,
     "learning_rate": 0.001,
@@ -13,10 +14,12 @@
     
     "is_train":1,
     "augment":1,
-    "transforms": ["rotation"],
+    "log":1,
+    "transforms": {"rotation":0.25,"crop":0.25},
     
     "weights_path": "./wgts/trans-nitre",
-    "device":"cuda:0",
+    "device":"cuda",
+    "parallel":1,
     
     "loss_trans": ["MSE"],
     "loss_trans_w": [1.0],

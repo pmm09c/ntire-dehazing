@@ -45,7 +45,6 @@ elif MODE == 'ATMOS':
     model = LinkNet().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
-        model = nn.DataParallel(model)
         model.load_state_dict(torch.load(sys.argv[2]))
     except Exception as e:
         print("No weights. Training from scratch.")
@@ -61,7 +60,6 @@ elif MODE == 'FAST50':
         param.requires_grad = False
     for param in model.trans.encoder4.parameters():
         param.requires_grad = False
-    model = nn.DataParallel(model)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
         model.load_state_dict(torch.load(sys.argv[2]))
@@ -69,7 +67,6 @@ elif MODE == 'FAST50':
         print("No weights. Training from scratch.")
 elif MODE == 'FAST':
     model = FastNet().to(device)
-    model = nn.DataParallel(model)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
         model.load_state_dict(torch.load(sys.argv[2]))
@@ -85,13 +82,9 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
             param.requires_grad = False
         for param in model.atmos.parameters():
             param.requires_grad = False
-        model = nn.DataParallel(model)
     except Exception as e:
         try:
-            model = nn.DataParallel(model)
             model.load_state_dict(torch.load(sys.argv[2]))
-            #for param in model.parameters():
-            #    param.requires_grad = False
         except Exception as e:
             print("No weights. Training from scratch.")
     if MODE == 'GAN':
@@ -99,12 +92,17 @@ elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
         optimizer_d = torch.optim.Adam(model_d.parameters(), lr=learning_rate)
         try:
             model_d.load_state_dict(torch.load(sys.argv[3]))
-            model_d = nn.DataParallel(model_d)
+            if opt['parallel']:
+                model_d = nn.DataParallel(model_d)
         except Exception as e:
             print("No weights. Training from scratch discrim.")
 else:
-    print('MODE INCORRECT : TRANS or ATMOS or FULL or GAN')
+    print('MODE INCORRECT : TRANS or ATMOS or FAST or FULL or GAN')
     exit()
+
+# Wrap in Data Parallel for multi-GPU use
+if opt['parallel']:
+    model = nn.DataParallel(model)
 
 # Loss
 def sdim(output,target):
@@ -238,12 +236,18 @@ for epoch in range(num_epochs):
         latest_msg = "Epoch: [{}/{}], Step: [{}/{}], Avg Epoch Loss: {:.4f}, Loss: {:.4f},".format(epoch+1, num_epochs, i+1, total_step, epoch_loss/(i+1), loss.item())+loss_msg
         print(latest_msg)
 
-    # Save weights
+    # Save weights and JSON logs
     if epoch_loss < best_loss:
         best_loss = epoch_loss
-        torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")
+        if opt['parallel']:
+            torch.save(model.module.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")
+        else:
+            torch.save(model.state_dict(), opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".ckpt")
         if MODE == 'GAN':
-            torch.save(model_d.state_dict(), opt['weights_path'] + "/" + MODE + "_D_" + str(epoch) + ".ckpt")
+            if opt['parallel']:
+                torch.save(model_d.module.state_dict(), opt['weights_path'] + "/" + MODE + "_D_" + str(epoch) + ".ckpt")
+            else:
+                torch.save(model_d.state_dict(), opt['weights_path'] + "/" + MODE + "_D_" + str(epoch) + ".ckpt")
         if opt['log'] == 1:
             with open(opt['weights_path'] + "/" + MODE + "_" + str(epoch) + ".json", "w") as js:
                 json.dump(dict(msg.split(':') for msg in latest_msg.replace(" ","").split(',')), js, indent=4, separators=(',',': '))
