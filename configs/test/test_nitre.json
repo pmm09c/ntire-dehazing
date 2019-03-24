@@ -1,0 +1,10 @@
+{
+    "mode": "dual",
+    "dataset": "nitre",
+    "root": "./nitre_dataset",
+    "haze": "test",
+    "results_path": "./results_NITRE",
+    "device":"cuda",
+    "is_train":0,
+    "size": [1600,1200]
+}

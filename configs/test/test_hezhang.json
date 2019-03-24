@@ -1,7 +1,8 @@
 {
     "mode": "full",
+    "dataset": "hezhang",
     "root": "./dataset-full",
     "haze": "val512",
     "results_path": "./results",
-    "device":"cuda:1"
+    "device":"cuda"
 }

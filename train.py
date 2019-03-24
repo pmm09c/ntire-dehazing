@@ -72,7 +72,7 @@ elif MODE == 'FAST':
         model.load_state_dict(torch.load(sys.argv[2]))
     except Exception as e:
         print("No weights. Training from scratch.")
-elif MODE == 'FULL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
+elif MODE == 'DUAL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
     model = DualFastNet().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:

@@ -1,5 +1,5 @@
 {
-    "mode": "full",
+    "mode": "dual",
     "dataset": "hezhang",
     "root": "./dataset-full",
     "haze": "train512",

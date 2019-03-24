@@ -1,5 +1,5 @@
 {
-    "mode": "full",
+    "mode": "dual",
     "dataset": "nitre",
     "root": "./nitre_dataset",
     "haze": "haze",
