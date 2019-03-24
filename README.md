@@ -62,6 +62,10 @@ As in training, testing can be done using a JSON configuration file. These are l
 # To Test
 python test.py config.json {path_to_weights_file}
 ``` 
+
+#### Recreating 2019 NTIRE Challenge Results
+Please refer to the release branch for directions on recreating challenge results.
+
 #### Results
 ![Test Image](https://github.com/pmm09c/nitre-dehazing/blob/master/dataset/test/53.png "Example Test Image")
 ![Test Dehazed Image](https://github.com/pmm09c/nitre-dehazing/blob/master/results_nitre/2.png "Example Test Image")
