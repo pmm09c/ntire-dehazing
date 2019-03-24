@@ -43,7 +43,7 @@ We propose two approaches. One approach estimates airlight and transmission maps
 ```bash
 # From randomly initialized weights
 python train.py config.json
-# From randomly pretrained weights
+# From pretrained weights
 python train.py config.json {path_to_weights_file}
 ```
 
