@@ -1,7 +1,7 @@
 # Feature Forwarding for Efficient Image Dehazing
 Method for 2019 CVPR NITRE Workshop, Image Dehazing Challenge
 
-## NITRE 2019 Image Haze Removal Challenge
+## NTIRE 2019 Image Haze Removal Challenge
 [Competition Page](https://competitions.codalab.org/competitions/21163)
 
 ### Entry Information
@@ -19,7 +19,7 @@ The code has been developed and tested with pytorch 1.0+ in a conda environment
 ```bash
 conda activate {Project Environment}
 git clone ${repository}
-cd nitre-dehazing
+cd ntire-dehazing
 conda install --yes --file requirements.txt
 cd ..
 git clone https://github.com/Po-Hsun-Su/pytorch-ssim
@@ -32,7 +32,7 @@ python setup.py
 
 #### Data
 
-Our competition results can be recreated by training with the 2019 NITRE Image Dehazing Dataset.
+Our competition results can be recreated by training with the 2019 NTIRE Image Dehazing Dataset.
 
 Other datasets available for image dehazing: [I-HAZE](http://www.vision.ee.ethz.ch/ntire18/i-haze/), [O-HAZE](http://www.vision.ee.ethz.ch/ntire18/o-haze/), and [He, Zhang's training dataset](https://github.com/hezhangsprinter/DCPDN).
 
