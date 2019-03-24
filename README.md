@@ -1,5 +1,5 @@
 # Feature Forwarding for Efficient Image Dehazing
-Method for 2019 CVPR NITRE Workshop, Image Dehazing Challenge
+Method for 2019 CVPR NTIRE Workshop, Image Dehazing Challenge
 
 ## NTIRE 2019 Image Haze Removal Challenge
 [Competition Page](https://competitions.codalab.org/competitions/21163)
