@@ -12,7 +12,7 @@ Method for 2019 CVPR NITRE Workshop, Image Dehazing Challenge
 
 [He, Zhang. Densely Connected Pyramid Dehazing Network](https://github.com/hezhangsprinter/DCPDN)
 
-#### Install and Data
+#### Install Our Models
 
 The code has been developed and tested with pytorch 1.0+ in a conda environment
 
@@ -30,38 +30,37 @@ cd ../pytorch-msssim
 python setup.py
 ```
 
-Datasets used were provided by NITRE and the He, Zhang training Dataset found at https://github.com/hezhangsprinter/DCPDN.
+#### Data
 
-#### Training and Test
-We propose two network architectures: FastNet and DualFastNet. FastNet utilizes a single LinkNet for its encoder-decoder, while DualFastNet utilizes two LinkNet encoder-decoders to learn transmission map and atmospheric light estimations. Both networks include refinement layers inspired by Zhang He's DCPDN network.
+Our competition results can be recreated by training with the 2019 NITRE Image Dehazing Dataset.
 
-##### Training Atmospheric Light Model
+Other datasets available for image dehazing: [I-HAZE](http://www.vision.ee.ethz.ch/ntire18/i-haze/), [O-HAZE](http://www.vision.ee.ethz.ch/ntire18/o-haze/), and [He, Zhang's training dataset](https://github.com/hezhangsprinter/DCPDN).
+
+#### Training Our Models
+We propose two approaches. One approach estimates airlight and transmission maps with two separate encoder-to-decoder networks that feed into a refinement layer. This model is named DualFastNet. The second approach uses a single network to a refinement layer. This model is named FastNet (uses ResNet 18 pretrained model) / FastNet50 (uses ResNet 50 pretrained model). These models draw upon past work, including [DCPDN](https://github.com/hezhangsprinter/DCPDN) and [LinkNet](https://github.com/e-lab/pytorch-linknet).
+
+To train:
 ```bash
-# Train
-python train.py configs/train_atmos.py
-# Test
-python test.py configs/test_atmos.py {airlight weights}
+# From randomly initialized weights
+python train.py config.json
+# From randomly pretrained weights
+python train.py config.json {path_to_weights_file}
 ```
-##### Training Transmission Map Model
+
+All train configs can be found in configs/train and modified as needed. Config json files are available for training a separate airlight model, a separate transmission map model, a DualFastNet model,a FastNet model, or a FastNet50 model. Each config is available for both the 2019 NITRE Image Dehazing dataset or the He, Zhang dataset.
+
+##### Loss Functions
+Our JSON configuration files natively support the following loss functions: L1 Loss, MSE Loss, BCE Loss, Huber Loss, SSIM Loss, MSSSIM Loss, and Content Loss. Multiple losses can be used with weightings specified in the JSON configuration files. For example to use 10*MSE and 1*SSIM, you can specify the following in the config:
 ```bash
-# Train
-python train.py configs/train_trans.py
-# Test
-python test.py configs/test_trans.py {trans weights}
-``` 
-##### Training DualFastNet Model on He Zhang Dataset
+"loss_image": ["MSE","SSIM"],
+"loss_image_w": [10.0,1.0],
+```
+
+#### Testing Our Models 
+As in training, testing can be done using a JSON configuration file. These are located in configs/test and can be modified as needed.
 ```bash
-# Train
-python train.py configs/train_full.py {trans weights} {airlight weights} 
-# Test
-python test.py configs/test_full.py {full weights}
-``` 
-##### Fine Tuning DualFastNet Model on NITRE Dataset
-```bash
-# Train
-python train.py configs/train_nitre.py {full weights} 
-# Test
-python test.py configs/test_nitre.py {nitre weights}
+# To Test
+python test.py config.json {path_to_weights_file}
 ``` 
 #### Results
 ![Test Image](https://github.com/pmm09c/nitre-dehazing/blob/master/dataset/test/53.png "Example Test Image")
