@@ -39,7 +39,7 @@ Other datasets available for image dehazing: [I-HAZE](http://www.vision.ee.ethz.
 #### Training Our Models
 We propose two approaches. One approach estimates airlight and transmission maps with two separate encoder-to-decoder networks that feed into a refinement layer. This model is named DualFastNet. The second approach uses a single network to a refinement layer. This model is named FastNet (uses ResNet 18 pretrained model) / FastNet50 (uses ResNet 50 pretrained model). These models draw upon past work, including [DCPDN](https://github.com/hezhangsprinter/DCPDN) and [LinkNet](https://github.com/e-lab/pytorch-linknet).
 
-To train:
+##### To Train
 ```bash
 # From randomly initialized weights
 python train.py config.json
