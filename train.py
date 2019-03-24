@@ -9,7 +9,7 @@ from torch.autograd import Variable
 # internal libraries
 from models.models import LinkNet,FastNet,FastNet50,DualFastNet,Discriminator,ContentLoss
 from hezhang_dataset import HeZhangDataset
-from nitre_dataset import NITREDataset
+from ntire_dataset import NTIREDataset
 
 # dependencies
 from pytorch_ssim import ssim
@@ -124,8 +124,8 @@ dhaze_criterion = [ criterion[x] for x in dhaze_loss ]
 discr_criterion = [ criterion[x] for x in discr_loss ]
 
 # Dataset
-if opt['dataset'].upper() == 'NITRE':
-    train_dataset = NITREDataset(opt)
+if opt['dataset'].upper() == 'NTIRE':
+    train_dataset = NTIREDataset(opt)
 else:
     train_dataset = HeZhangDataset(opt)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
