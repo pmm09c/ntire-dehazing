@@ -50,7 +50,7 @@ python train.py config.json {path_to_weights_file}
 All train configs can be found in configs/train and modified as needed. Config json files are available for training a separate airlight model, a separate transmission map model, a DualFastNet model,a FastNet model, or a FastNet50 model. Each config is available for both the 2019 NITRE Image Dehazing dataset or the He, Zhang dataset.
 
 ##### Loss Functions
-Our JSON configuration files natively support the following loss functions: L1 Loss, MSE Loss, BCE Loss, Huber Loss, SSIM Loss, MSSSIM Loss, and Content Loss. Multiple losses can be used with weightings specified in the JSON configuration files. For example to use 10*MSE and 1*SSIM, you can specify the following in the config:
+Our JSON configuration files natively support the following loss functions: L1 Loss, MSE Loss, BCE Loss, Huber Loss, SSIM Loss, MSSSIM Loss, and Content Loss. Content Loss is computed as described in[Perceptual Losses for Real-Time Style Transfer and Super-Resolution](https://arxiv.org/abs/1603.08155). Multiple losses can be used with weightings specified in the JSON configuration files. For example to use 10xMSE and 1xSSIM, you can specify the following in the config:
 ```bash
 "loss_image": ["MSE","SSIM"],
 "loss_image_w": [10.0,1.0],
