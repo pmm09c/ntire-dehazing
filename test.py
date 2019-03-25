@@ -34,12 +34,13 @@ elif MODE == 'ATMOS':
     model = LinkNet().to(device)
     model.load_state_dict(torch.load(sys.argv[2]))
 elif MODE == 'DUAL':
-    model = FullNet().to(device)
+    model = DualFastNet().to(device)
+    model = nn.DataParallel(model)
     model.load_state_dict(torch.load(sys.argv[2]))
 elif MODE == "FAST":
     model = FastNet().to(device)
     model.load_state_dict(torch.load(sys.argv[2]))
-elif MODE == "FAST50"
+elif MODE == "FAST50":
     model = FastNet50().to(device)
     model.load_state_dict(torch.load(sys.argv[2]))
 else:
