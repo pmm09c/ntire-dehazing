@@ -97,7 +97,7 @@ elif MODE == 'DUAL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
         except Exception as e:
             print("No weights. Training from scratch discrim.")
 else:
-    print('MODE INCORRECT : TRANS or ATMOS or FAST or FULL or GAN')
+    print('MODE INCORRECT : TRANS or ATMOS or FAST or DUAL or GAN')
     exit()
 
 # Wrap in Data Parallel for multi-GPU use
