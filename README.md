@@ -64,7 +64,10 @@ python test.py config.json {path_to_weights_file}
 ``` 
 
 #### Recreating 2019 NTIRE Challenge Results
-Please refer to the release branch for directions on recreating challenge results.
+Copy the weights from the release tagged ntire_submission to the wgts directory and run the following command
+```bash
+python test.py configs/test/test_nitre.json wgts/ntire_submission.ckpt
+``` 
 
 #### Results
 ![Test Image](https://github.com/pmm09c/nitre-dehazing/blob/master/dataset/test/53.png "Example Test Image")
