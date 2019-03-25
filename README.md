@@ -71,4 +71,4 @@ python test.py configs/test/test_nitre.json wgts/ntire_submission.ckpt
 
 #### Results
 ![Test Image](https://github.com/pmm09c/nitre-dehazing/blob/master/dataset/test/53.png "Example Test Image")
-![Test Dehazed Image](https://github.com/pmm09c/nitre-dehazing/blob/master/results_nitre/2.png "Example Test Image")
+![Test Dehazed Image](https://github.com/pmm09c/nitre-dehazing/blob/master/results_ntire/2.png "Example Test Image")
