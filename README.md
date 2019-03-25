@@ -1,5 +1,5 @@
 # Feature Forwarding for Efficient Image Dehazing
-Method for 2019 CVPR NITRE Workshop, Image Dehazing Challenge
+Method for 2019 CVPR NTIRE Workshop, Image Dehazing Challenge
 
 ## NTIRE 2019 Image Haze Removal Challenge
 [Competition Page](https://competitions.codalab.org/competitions/21163)
@@ -64,11 +64,11 @@ python test.py config.json {path_to_weights_file}
 ``` 
 
 #### Recreating 2019 NTIRE Challenge Results
-The weights are included in this release. Copy the test images into this directory and update the test_ntire.json config to point to that directory. 
+Copy the weights from the release tagged ntire_submission to the wgts directory and run the following command
 ```bash
-# To Test
-python test.py config.json {path_to_weights_file}/ntire_submission.ckpt
+python test.py configs/test/test_nitre.json wgts/ntire_submission.ckpt
 ``` 
+
 #### Results
 ![Test Image](https://github.com/pmm09c/nitre-dehazing/blob/master/dataset/test/53.png "Example Test Image")
 ![Test Dehazed Image](https://github.com/pmm09c/nitre-dehazing/blob/master/results_ntire/2.png "Example Test Image")

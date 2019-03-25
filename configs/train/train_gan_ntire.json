@@ -1,23 +1,23 @@
 {
-    "mode": "fast",
-    "dataset": "nitre",
-    "root": "./nitre_dataset",
+    "mode": "gan",
+    "dataset": "ntire",
+    "root": "./ntire_dataset",
     "haze": "haze",
     "image": "clean",
     "atmos": "atmos",
     "trans": "trans",
     "size": [1600,1200],
-
-    "batch_size": 16,
-    "learning_rate": 0.001,
-    "num_epochs": 1000,
     
+    "batch_size": 2,
+    "learning_rate": 0.0001,
+    "num_epochs": 100,
+
     "is_train":1,
     "augment":1,
     "log":1,
     "transforms": {"rotation":0.25,"crop":0.25},
     
-    "weights_path": "./wgts/fast-nitre",
+    "weights_path": "./wgts/gan-ntire",
     "device":"cuda",
     "parallel":1,
 
@@ -29,7 +29,7 @@
     "loss_dhaze_w": [],
     "loss_image": ["MSE"],
     "loss_image_w": [1.0],
-    "loss_discr": [],
-    "loss_discr_w": [],
+    "loss_discr": ["BCE"],
+    "loss_discr_w": [1.0],
     "pad": [8,8]
 }

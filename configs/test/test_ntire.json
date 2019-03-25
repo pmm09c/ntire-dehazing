@@ -1,9 +1,9 @@
 {
     "mode": "dual",
-    "dataset": "nitre",
-    "root": "./nitre_dataset",
+    "dataset": "ntire",
+    "root": "./dataset",
     "haze": "test",
-    "results_path": "./results_NITRE",
+    "results_path": "./results_ntire",
     "device":"cuda",
     "is_train":0,
     "size": [1600,1200]

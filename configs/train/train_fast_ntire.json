@@ -1,14 +1,14 @@
 {
-    "mode": "fast50",
-    "dataset": "nitre",
-    "root": "./nitre_dataset",
+    "mode": "fast",
+    "dataset": "ntire",
+    "root": "./ntire_dataset",
     "haze": "haze",
     "image": "clean",
     "atmos": "atmos",
     "trans": "trans",
     "size": [1600,1200],
 
-    "batch_size": 8,
+    "batch_size": 16,
     "learning_rate": 0.001,
     "num_epochs": 1000,
     
@@ -16,7 +16,8 @@
     "augment":1,
     "log":1,
     "transforms": {"rotation":0.25,"crop":0.25},
-    "weights_path": "./wgts/fast50-nitre",
+    
+    "weights_path": "./wgts/fast-ntire",
     "device":"cuda",
     "parallel":1,
 

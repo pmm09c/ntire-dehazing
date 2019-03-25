@@ -36,7 +36,7 @@ def crop_and_resample_2darray(arr, x_crop, y_crop, resample):
     result = np.rollaxis(result,0,3) 
     return result
 
-class NITREDataset(data.Dataset):
+class NTIREDataset(data.Dataset):
 
     def __init__(self, opt):
 
