@@ -187,7 +187,7 @@ for epoch in range(num_epochs):
 
 
         # Train full network (light atmospheric estimation, transmission map, dehazed image; with or without GAN loss)
-        elif MODE == 'FULL' or MODE == 'GAN':
+        elif MODE == 'DUAL' or MODE == 'GAN':
             output,trans,atmos,dehaze = model(haze)
             output = crop(output)
             trans = crop(trans)
