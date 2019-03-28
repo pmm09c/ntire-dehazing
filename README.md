@@ -10,7 +10,7 @@ Method for 2019 CVPR NTIRE Workshop, Image Dehazing Challenge
 
 [e-lab. LinkNet](https://github.com/e-lab/pytorch-linknet)
 
-[He, Zhang. Densely Connected Pyramid Dehazing Network](https://github.com/hezhangsprinter/DCPDN)
+[Zhang, He. Densely Connected Pyramid Dehazing Network](https://github.com/hezhangsprinter/DCPDN)
 
 #### Install Our Models
 
