@@ -1,7 +1,7 @@
 {
     "mode": "dual",
     "dataset": "hezhang",
-    "root": "./hezhang",
+    "root": "./dataset-full",
     "haze": "train512",
     
     "batch_size": 16,
