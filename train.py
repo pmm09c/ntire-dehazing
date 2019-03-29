@@ -12,10 +12,8 @@ from hezhang_dataset import HeZhangDataset
 from ntire_dataset import NTIREDataset
 
 # dependencies
-#from pytorch_ssim import ssim
-#from pytorch_msssim import MSSSIM
-from models.ssim import ssim
-from models.msssim import MSSSIM
+from pytorch_ssim import ssim
+from pytorch_msssim import MSSSIM
 
 # Load config file 
 opt_file = open(sys.argv[1], "r")
@@ -104,7 +102,6 @@ else:
 
 # Wrap in Data Parallel for multi-GPU use
 if opt['parallel']:
-    print("Data is parallelized!")
     model = nn.DataParallel(model)
 
 # Set default early stop, if not defined
