@@ -1,0 +1,11 @@
+{
+    "dataset": "NTIRE",
+    "root": "./scoring/input",
+    "haze": "ref",
+    "loss_image": ["MSE"],
+    "loss_image_w": [1.0],
+    "device":"cuda:0",
+    "results_path": "./scoring/input/res",
+    "is_train":0,
+    "size": [512,512]
+}

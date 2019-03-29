@@ -1,15 +1,17 @@
 {
     "mode": "dual",
     "dataset": "hezhang",
-    "root": "./dataset-full",
+    "root": "./hezhang",
     "haze": "train512",
     
-    "batch_size": 64,
+    "batch_size": 16,
     "learning_rate": 0.001,
-    "num_epochs": 30,
+    "num_epochs": 3000,
     
     "weights_path": "./wgts/full-hezhang",
     "device":"cuda",
+    "log":1,
+    "parallel":1,
 
     "loss_trans": ["MSE"],
     "loss_trans_w": [1.0],
@@ -21,5 +23,8 @@
     "loss_image_w": [1.0],
     "loss_discr": [],
     "loss_discr_w": [],
-    "pad": [0,0]
+    "pad": [0,0],
+
+    "validate":1,
+    "validation_config": "./configs/validation/validate_hezhang.json"
 }

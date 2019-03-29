@@ -1,0 +1,9 @@
+{
+    "dataset": "hezhang",
+    "root": "./hezhang",
+    "haze": "val512",
+    "loss_image": ["CONTENT"],
+    "loss_image_w": [1.0],
+    "device":"cuda:1",
+    "results_path": "./results"
+}
