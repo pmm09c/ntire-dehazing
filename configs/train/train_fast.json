@@ -1,0 +1,31 @@
+{
+    "mode": "fast",
+    "dataset": "hezhang",
+    "root": "./hezhang",
+    "haze": "train512",
+    
+    "batch_size": 16,
+    "learning_rate": 0.001,
+    "num_epochs": 3000,
+    
+    "weights_path": "./wgts/fast-hezhang",
+    "device":"cuda:0",
+    "log":1,
+    "parallel":0,
+
+    "loss_trans": [],
+    "loss_trans_w": [],
+    "loss_atmos": [],
+    "loss_atmos_w": [],
+    "loss_dhaze": [],
+    "loss_dhaze_w": [],
+    "loss_image": ["MSE"],
+    "loss_image_w": [1.0],
+    "loss_discr": [],
+    "loss_discr_w": [],
+
+    "pad": [0,0],
+
+    "validate":1,
+    "validation_config": "./configs/validation/validate_hezhang.json"
+}
