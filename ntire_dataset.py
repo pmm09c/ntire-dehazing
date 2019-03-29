@@ -58,7 +58,6 @@ class NTIREDataset(data.Dataset):
             self.augment = bool(opt['augment'])
             if self.augment:
                 self.transforms = opt['transforms']
-                self.odds = opt['odds']
 
         self.length = len(self.image_paths_haze)
         self.size = opt['size']
