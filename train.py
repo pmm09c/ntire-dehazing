@@ -106,13 +106,6 @@ else:
     print('MODE INCORRECT : TRANS or ATMOS or FAST or DUAL or GAN')
     exit()
 
-
-print(np.linalg.norm(model.trans.encoder1[0].conv1.weight.data.cpu().numpy()))
-print(np.linalg.norm(model.trans.encoder2[0].conv1.weight.data.cpu().numpy()))
-print(np.linalg.norm(model.trans.encoder3[0].conv1.weight.data.cpu().numpy()))
-print(np.linalg.norm(model.trans.encoder4[0].conv1.weight.data.cpu().numpy()))
-exit()
-
 # Wrap in Data Parallel for multi-GPU use
 if opt['parallel']:
     model = nn.DataParallel(model)
