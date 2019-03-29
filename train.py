@@ -12,8 +12,10 @@ from hezhang_dataset import HeZhangDataset
 from ntire_dataset import NTIREDataset
 
 # dependencies
-from pytorch_ssim import ssim
-from pytorch_msssim import MSSSIM
+#from pytorch_ssim import ssim
+#from pytorch_msssim import MSSSIM
+from models.ssim import ssim
+from models.msssim import MSSSIM
 
 # Load config file 
 opt_file = open(sys.argv[1], "r")
@@ -50,6 +52,7 @@ elif MODE == 'ATMOS':
         print("No weights. Training from scratch.")
 elif MODE == 'FAST50':
     model = FastNet50().to(device)
+    '''
     for param in model.trans.in_block.parameters():
         param.requires_grad = False
     for param in model.trans.encoder1.parameters():
@@ -60,6 +63,7 @@ elif MODE == 'FAST50':
         param.requires_grad = False
     for param in model.trans.encoder4.parameters():
         param.requires_grad = False
+    '''
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     try:
         model.load_state_dict(torch.load(sys.argv[2]))
@@ -78,10 +82,12 @@ elif MODE == 'DUAL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
     try:
         model.trans.load_state_dict(torch.load(sys.argv[2]))
         model.atmos.load_state_dict(torch.load(sys.argv[3]))
+        '''
         for param in model.trans.parameters():
             param.requires_grad = False
         for param in model.atmos.parameters():
             param.requires_grad = False
+        '''
     except Exception as e:
         try:
             model.load_state_dict(torch.load(sys.argv[2]))
@@ -99,6 +105,13 @@ elif MODE == 'DUAL' or ( MODE == 'GAN' and len(opt['loss_discr']) ):
 else:
     print('MODE INCORRECT : TRANS or ATMOS or FAST or DUAL or GAN')
     exit()
+
+
+print(np.linalg.norm(model.trans.encoder1[0].conv1.weight.data.cpu().numpy()))
+print(np.linalg.norm(model.trans.encoder2[0].conv1.weight.data.cpu().numpy()))
+print(np.linalg.norm(model.trans.encoder3[0].conv1.weight.data.cpu().numpy()))
+print(np.linalg.norm(model.trans.encoder4[0].conv1.weight.data.cpu().numpy()))
+exit()
 
 # Wrap in Data Parallel for multi-GPU use
 if opt['parallel']:
