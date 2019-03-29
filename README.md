@@ -55,7 +55,7 @@ All train configuration JSONs can be found in configs/train and modified as need
 ```
 
 ##### Loss Functions
-Our JSON configuration files natively support the following loss functions: L1 Loss, MSE Loss, BCE Loss, Huber Loss, SSIM Loss, MSSSIM Loss, and Content Loss. Content Loss is computed as described in [Perceptual Losses for Real-Time Style Transfer and Super-Resolution](https://arxiv.org/abs/1603.08155). Multiple losses can be used with weightings specified in the JSON configuration files. For example to use 10xMSE and 1xSSIM, you can specify the following in the config:
+Our JSON configuration files natively support the following loss functions: L1 Loss, MSE Loss, BCE Loss, Huber Loss, SSIM Loss, MSSSIM Loss, PSNR Loss, and Content Loss. Content Loss is computed as described in [Perceptual Losses for Real-Time Style Transfer and Super-Resolution](https://arxiv.org/abs/1603.08155). Multiple losses can be used with weightings specified in the JSON configuration files. For example to use 10xMSE and 1xSSIM, you can specify the following in the config:
 ```bash
 "loss_image": ["MSE","SSIM"],
 "loss_image_w": [10.0,1.0],
