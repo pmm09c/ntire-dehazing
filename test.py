@@ -55,10 +55,32 @@ else:
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset)
 total_step = len(train_loader)
 
-# Note - padding is specific to image size; padding below is specific to NTIRE dataset images (1200x1600).
-pad = nn.ReflectionPad2d((0,0,8,8))
-crop = nn.ReflectionPad2d((0,0,-8,-8)).to(device)
+def get_pad(size):
+    pad = [0, 0, 0, 0]
+    x_pad = 32 - (size[0] % 32)
+    y_pad = 32 - (size[1] % 32)
+    if x_pad != 32:
+        if x_pad % 2 != 0:
+            pad[0] = (x_pad - 1)/2
+            pad[1] = (x_pad - 1)/2 + 1
+        else:
+            pad[0] = x_pad/2
+            pad[1] = x_pad/2
+    if y_pad != 32:
+        if y_pad % 2 != 0:
+            pad[2] = (y_pad - 1)/2
+            pad[3] = (y_pad - 1)/2 + 1
+        else:
+            pad[2] = y_pad/2
+            pad[3] = y_pad/2
+    pad = [int(p) for p in pad]
+    return pad
+
 for i, (haze,_,_,_) in enumerate(train_loader):
+    pad_coords = get_pad([haze.shape[3], haze.shape[2]]) 
+    pad = nn.ReflectionPad2d((pad_coords[0],pad_coords[1],pad_coords[2],pad_coords[3])).to(device)
+    crop = nn.ReflectionPad2d((-pad_coords[0],-pad_coords[1],-pad_coords[2],-pad_coords[3])).to(device)
+
     haze = haze.to(device)
     haze = pad(haze)
     t = time()

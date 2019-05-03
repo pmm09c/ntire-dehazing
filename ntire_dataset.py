@@ -97,7 +97,7 @@ class NTIREDataset(data.Dataset):
         return images
 
     def check_size(self, im):
-        if im.size != self.size:
+        if self.is_train and im.size != self.size:
             im = im.resize(self.size, Image.BILINEAR)
         return im
 
