@@ -34,7 +34,7 @@ python setup.py
 
 #### Data
 
-Our competition results can be recreated by training with the Dense-Haze Dataset(https://arxiv.org/abs/1904.02904), introduced in the 2019 NTIRE Image Dehazing Challenge.
+Our competition results can be recreated by training with the [Dense-Haze Dataset](https://arxiv.org/abs/1904.02904), introduced in the 2019 NTIRE Image Dehazing Challenge.
 
 Other datasets available for image dehazing: [I-HAZE](http://www.vision.ee.ethz.ch/ntire18/i-haze/), [O-HAZE](http://www.vision.ee.ethz.ch/ntire18/o-haze/), and [He, Zhang's training dataset](https://github.com/hezhangsprinter/DCPDN).
 
